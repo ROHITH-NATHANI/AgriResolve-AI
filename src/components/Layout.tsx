@@ -1,46 +1,62 @@
-
 import React from 'react';
+import { HistorySidebar } from '../features/history/components/HistorySidebar';
+import { CropAnalysisRecord } from '../features/history/types';
+import { ShieldCheck } from 'lucide-react';
 
-export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface LayoutProps {
+  children: React.ReactNode;
+  history?: CropAnalysisRecord[];
+  onSelectHistory?: (record: CropAnalysisRecord) => void;
+}
+
+export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelectHistory = () => { } }) => {
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-green-900 text-white p-6 flex flex-col gap-8 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center font-bold text-xl shadow-inner">
-            A
-          </div>
-          <div>
-            <h1 className="font-bold text-lg leading-none">AgroResolve</h1>
-            <span className="text-xs text-green-400 font-medium">Explainable AI</span>
+    <div className="min-h-screen flex flex-col md:flex-row font-inter bg-gray-50">
+      {/* Sidebar - Professional & Solid */}
+      <aside className="w-full md:w-80 bg-white border-r border-gray-200 text-gray-900 flex flex-col shadow-sm relative z-30">
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img src="/logo.svg" alt="AgroResolve Logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900 tracking-tight">AgroResolve</h1>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-xs font-semibold text-green-700 tracking-wide uppercase">System Online</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <nav className="flex flex-col gap-2">
-          <button className="flex items-center gap-3 p-3 bg-green-800 rounded-lg transition-colors hover:bg-green-700">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            Dashboard
-          </button>
-          <button className="flex items-center gap-3 p-3 text-green-300 rounded-lg transition-colors hover:bg-green-800 hover:text-white">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
-            History
-          </button>
-          <button className="flex items-center gap-3 p-3 text-green-300 rounded-lg transition-colors hover:bg-green-800 hover:text-white">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-            Learn More
-          </button>
-        </nav>
+        {/* History Section */}
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div className="p-4 pb-2 bg-gray-50/50 border-b border-gray-100">
+            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Recent Diagnostics</h2>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2">
+            <HistorySidebar history={history} onSelect={onSelectHistory} />
+          </div>
+        </div>
 
-        <div className="mt-auto p-4 bg-green-800 rounded-xl border border-green-700">
-          <p className="text-xs text-green-400 mb-2 font-medium">SAFE AI PROMISE</p>
-          <p className="text-[10px] text-green-200 leading-relaxed">
-            Our framework provides risk indicators, never chemical prescriptions. Always consult an agronomist for treatments.
-          </p>
+        {/* Footer */}
+        <div className="p-4 bg-gray-50 border-t border-gray-200">
+          <div className="bg-blue-50 border border-blue-100 rounded-md p-3">
+            <div className="flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-blue-700 mt-0.5 shrink-0" />
+              <div>
+                <h3 className="text-xs font-bold text-blue-900 uppercase">Certified Tool</h3>
+                <p className="text-[10px] text-blue-800 leading-relaxed mt-1">
+                  Results for decision support only. Consult an agronomist for prescriptions.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-10 bg-white/5 backdrop-blur-sm">
+      {/* Main Content - Clean Light Background */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-10 bg-gray-50">
         <div className="max-w-5xl mx-auto">
           {children}
         </div>

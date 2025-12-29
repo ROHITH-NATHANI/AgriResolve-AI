@@ -1,5 +1,5 @@
 import { Agent } from './BaseAgent';
-import { routeGeminiCall } from '../gemini';
+import { routeGeminiCall } from '../../services/gemini';
 
 export interface VisionEvidence {
     lesion_color: string;

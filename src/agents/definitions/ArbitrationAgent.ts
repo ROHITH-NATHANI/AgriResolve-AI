@@ -1,5 +1,5 @@
 import { Agent } from './BaseAgent';
-import { routeGeminiCall } from '../gemini';
+import { routeGeminiCall } from '../../services/gemini';
 import { QualityReport } from './QualityEvaluator';
 
 export enum DecisionState {

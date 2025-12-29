@@ -1,9 +1,9 @@
-import { VisionEvidenceAgent } from './agents/VisionEvidenceAgent';
-import { QualityEvaluator } from './agents/QualityEvaluator';
-import { HealthyHypothesisAgent } from './agents/HealthyHypothesisAgent';
-import { DiseaseHypothesisAgent } from './agents/DiseaseHypothesisAgent';
-import { ArbitrationAgent } from './agents/ArbitrationAgent';
-import { ExplanationAgent } from './agents/ExplanationAgent';
+import { VisionEvidenceAgent } from './definitions/VisionEvidenceAgent';
+import { QualityEvaluator } from './definitions/QualityEvaluator';
+import { HealthyHypothesisAgent } from './definitions/HealthyHypothesisAgent';
+import { DiseaseHypothesisAgent } from './definitions/DiseaseHypothesisAgent';
+import { ArbitrationAgent } from './definitions/ArbitrationAgent';
+import { ExplanationAgent } from './definitions/ExplanationAgent';
 import { AssessmentData, AssessmentStatus } from '../types';
 
 // Instantiate agents (Singletons for this demo)

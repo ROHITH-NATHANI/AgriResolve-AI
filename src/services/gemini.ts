@@ -14,6 +14,7 @@ const MODEL_REGISTRY = {
     DEBATE_HIGH_THROUGHPUT: "models/gemini-2.5-flash-lite", // Moved to Lite to avoid 429 on 2.0-flash
     ARBITRATION_SMART: "models/gemini-2.5-flash", // Better reasoning for verdicts
     EXPLANATION_POLISHED: "models/gemini-2.5-flash", // High quality generation
+    CHAT_INTERACTIVE: "models/gemini-2.5-flash", // Fast, context-aware chat
 };
 
 export async function routeGeminiCall(

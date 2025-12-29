@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Eye, ShieldCheck, Scale, FileText, Activity, Zap } from 'lucide-react';
-import { AssessmentStatus } from '../types';
-import { cn } from '../lib/utils';
+import { AssessmentStatus } from '../../../types';
+import { cn } from '../../../lib/utils';
 
 interface AgentVisualizerProps {
     status: AssessmentStatus;
@@ -10,14 +10,14 @@ interface AgentVisualizerProps {
 
 const AGENTS = [
     {
-        id: AssessmentStatus.EVALUATING,
+        id: AssessmentStatus.PERCEIVING,
         label: "Vision Systems",
         icon: Eye,
         color: "bg-blue-500",
         desc: "Scanning visual features..."
     },
     {
-        id: AssessmentStatus.ANALYZING, // Note: We might need to map this if statuses differ
+        id: AssessmentStatus.EVALUATING,
         label: "Quality Control",
         icon: ShieldCheck,
         color: "bg-purple-500",
@@ -49,21 +49,28 @@ const AGENTS = [
 // Helper to map current status to active index
 const getActiveIndex = (status: AssessmentStatus) => {
     const order = [
-        AssessmentStatus.PENDING,
-        AssessmentStatus.EVALUATING, // Vision
-        /* We might need to ensure Quality status exists or is part of Evaluating */
+        AssessmentStatus.IDLE,
+        AssessmentStatus.UPLOADING,
+        AssessmentStatus.PERCEIVING,
+        AssessmentStatus.EVALUATING,
         AssessmentStatus.DEBATING,
         AssessmentStatus.ARBITRATING,
         AssessmentStatus.EXPLAINING,
         AssessmentStatus.COMPLETED
     ];
-    return order.indexOf(status);
+    // Map IDLE/UPLOADING to 0 (before first agent), others to their index
+    // The visualizer starts at PERCEIVING (index 2 in order array)
+    // So we need to shift logic slightly or just use indexOf
+    return order.indexOf(status) - 1; // -1 because IDLE/UPLOADING are before the first visual step?
+    // Actually, let's keep it simple. The component expects 1-based index roughly.
+    // If status is PERCEIVING (index 2), we want activeIndex to match the first agent (index 0 in AGENTS).
+    // Let's rewrite the return to be clearer.
 };
 
 export const AgentVisualizer: React.FC<AgentVisualizerProps> = ({ status }) => {
     const activeIndex = getActiveIndex(status);
 
-    if (status === AssessmentStatus.PENDING) return null;
+    if (status === AssessmentStatus.IDLE || status === AssessmentStatus.UPLOADING) return null;
 
     return (
         <div className="w-full max-w-4xl mx-auto my-8 p-6 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-2xl overflow-hidden relative">

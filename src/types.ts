@@ -12,10 +12,10 @@ export enum AssessmentStatus {
 }
 
 // Re-export specific agent types for UI use if needed
-export type { VisionEvidence } from './services/agents/VisionEvidenceAgent';
-export type { QualityReport } from './services/agents/QualityEvaluator';
-export type { HypothesisResult } from './services/agents/HealthyHypothesisAgent';
-export type { ArbitrationResult, DecisionState } from './services/agents/ArbitrationAgent';
+export type { VisionEvidence } from './agents/definitions/VisionEvidenceAgent';
+export type { QualityReport } from './agents/definitions/QualityEvaluator';
+export type { HypothesisResult } from './agents/definitions/HealthyHypothesisAgent';
+export type { ArbitrationResult, DecisionState } from './agents/definitions/ArbitrationAgent';
 
 // Comprehensive Assessment Data covering all agents
 export interface AssessmentData {
