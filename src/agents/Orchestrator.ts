@@ -1,7 +1,6 @@
 import { VisionEvidenceAgent } from './definitions/VisionEvidenceAgent';
 import { QualityEvaluator } from './definitions/QualityEvaluator';
-import { HealthyHypothesisAgent } from './definitions/HealthyHypothesisAgent';
-import { DiseaseHypothesisAgent } from './definitions/DiseaseHypothesisAgent';
+import { ConsensusAgent } from './definitions/ConsensusAgent';
 import { ArbitrationAgent } from './definitions/ArbitrationAgent';
 import { ExplanationAgent } from './definitions/ExplanationAgent';
 import { AssessmentData, AssessmentStatus } from '../types';
@@ -9,8 +8,7 @@ import { AssessmentData, AssessmentStatus } from '../types';
 // Instantiate agents (Singletons for this demo)
 const visionAgent = new VisionEvidenceAgent();
 const qualityAgent = new QualityEvaluator();
-const healthyAgent = new HealthyHypothesisAgent();
-const diseaseAgent = new DiseaseHypothesisAgent();
+const consensusAgent = new ConsensusAgent(); // Replaces Healthy + Disease
 const arbitrationAgent = new ArbitrationAgent();
 const explanationAgent = new ExplanationAgent();
 
@@ -30,18 +28,27 @@ export async function runAgenticPipeline(
     onStatusUpdate(AssessmentStatus.EVALUATING);
     const quality = await qualityAgent.run(imageB64, visionEvidence);
 
-    // 3. Debate (Parallel)
+    // 3. Debate (Consolidated)
     onStatusUpdate(AssessmentStatus.DEBATING);
-    // Run both agents in parallel for efficiency
-    const [healthyResult, diseaseResult] = await Promise.all([
-        healthyAgent.run(visionEvidence, quality, language),
-        diseaseAgent.run(visionEvidence, quality, language)
-    ]);
+    // Runs both sides of the argument in ONE API call to save latency and quota
+    const consensusResult = await consensusAgent.run(visionEvidence, quality, language);
+
+    const healthyResult = {
+        is_healthy: consensusResult.healthy.score > 0.5,
+        score: consensusResult.healthy.score,
+        arguments: consensusResult.healthy.arguments,
+        evidence_refs: { quality_score: quality.score }
+    };
+
+    const diseaseResult = {
+        score: consensusResult.disease.score,
+        arguments: consensusResult.disease.arguments,
+        evidence_refs: { quality_score: quality.score }
+    };
 
     // 4. Arbitration
     onStatusUpdate(AssessmentStatus.ARBITRATING);
     const arbitrationResult = await arbitrationAgent.run(healthyResult, diseaseResult, quality, language);
-
 
     // 5. Explanation
     onStatusUpdate(AssessmentStatus.EXPLAINING);

@@ -8,13 +8,13 @@ if (!API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-// Model Registry - Migrated to Gemini 2.5 (Dec 2025 Standard) due to 1.5 retirement
+// Model Registry - Optimized for Free Tier Quota (1.5 Flash = 1500/day vs 2.5 = 20/day)
 const MODEL_REGISTRY = {
-    VISION_FAST: "gemini-2.5-flash",
-    DEBATE_HIGH_THROUGHPUT: "gemini-2.5-flash",
-    ARBITRATION_SMART: "gemini-2.5-flash",
-    EXPLANATION_POLISHED: "gemini-2.5-flash",
-    CHAT_INTERACTIVE: "gemini-2.5-flash",
+    VISION_FAST: "gemini-1.5-flash",
+    DEBATE_HIGH_THROUGHPUT: "gemini-1.5-flash",
+    ARBITRATION_SMART: "gemini-1.5-flash",
+    EXPLANATION_POLISHED: "gemini-1.5-flash",
+    CHAT_INTERACTIVE: "gemini-1.5-flash",
 };
 
 export async function routeGeminiCall(

@@ -6,8 +6,9 @@
 
   <p align="center">
     <img src="https://img.shields.io/badge/Status-Online-success?style=for-the-badge" alt="Status">
-    <img src="https://img.shields.io/badge/AI-Gemini%201.5%20Flash-blue?style=for-the-badge" alt="AI Model">
+    <img src="https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue?style=for-the-badge" alt="AI Model">
     <img src="https://img.shields.io/badge/Stack-React%20%7C%20Vite%20%7C%20TypeScript-blueviolet?style=for-the-badge" alt="Tech Stack">
+    <img src="https://img.shields.io/badge/Languages-10%2B-orange?style=for-the-badge" alt="Multilingual">
   </p>
 </div>
 
@@ -15,44 +16,43 @@
 
 ## 🌾 Overview
 
-**AgroResolve AI** is a next-generation diagnostic tool designed to empower farmers and agronomists with instant, explainable insights into crop health. Unlike standard "black box" classifiers, AgroResolve employs a **Multi-Agent Consensus System** where distinct AI personas debate and validate findings before presenting a verdict.
+**AgroResolve AI** is a professional-grade diagnostic tool designed to empower farmers and agronomists with instant, explainable insights into crop health. 
 
-This system is wrapped in a high-performance, cinematic UI featuring 3D visualizations and a responsive "Field Assistant" for interactive guidance.
+Built on the **Gemini 2.5** engine, it employs a unique **Multi-Agent Consensus System** where diverse AI personas (Defense, Pathology, Arbitration) debate the diagnosis in real-time before issuing a verdict. The application is fully multilingual, supporting **10 Indian languages** with instant, zero-cost switching.
 
 ## ✨ Key Features
 
+### 🌍 Universal Multilingual Support
+-   **10 Supported Languages**: English, Hindi, Telugu, Tamil, Malayalam, Kannada, Marathi, Bengali, Gujarati, Punjabi.
+-   **Instant Translation Cache**: Switch languages *after* a scan without re-running the heavy analysis.
+-   **Zero-Cost Switching**: Results are cached locally, so flipping between languages costs 0 API credits.
+-   **Dynamic Content**: AI generates not just the UI, but the *analysis logic* (bullet points, rationale) in the target language.
+
 ### 🧠 Multi-Agent Analysis Pipeline
-Our unique architecture splits the diagnostic process across specialized agents:
-1.  **👁️ Vision Systems Agent**: Scans for visual anomalies, textures, and patterns.
-2.  **🛡️ Quality Control Agent**: Verifies image reliability and checks for artifacts.
-3.  **🧬 Hypothesis Debate**: 
-    -   *Defense Agent*: Argues for abiotic causes or healthy variations.
-    -   *Pathology Agent*: Argues for disease or pest vectors.
-4.  **⚖️ Arbitration Agent**: Weighs the arguments and issues a final, confidence-weighted verdict.
-5.  **📝 Explanation Agent**: Generates farmer-friendly guidance and actionable steps.
+1.  **👁️ Vision Agent**: Scans textures and lesions (`Gemini 2.5 Vision`).
+2.  **🛡️ Healthy Hypothesis Agent**: Argues for abiotic causes/healthy variations.
+3.  **🦠 Disease Hypothesis Agent**: Argues for potential pathology risks.
+4.  **⚖️ Arbitration Agent**: Weighs the debate and issues a final, confidence-weighted verdict.
+5.  **📝 Explanation Agent**: Generates actionable guidance.
 
 ### 🎮 Immersive Experience
--   **3D Bio-Network Background**: A dynamic, interactive particle system simulating neural/biological connections using `React Three Fiber`.
--   **Cinematic Animations**: Smooth, motion-designed transitions powered by `Framer Motion`.
--   **Floating HUD**: A modern, glassmorphic interface that floats above the living background.
-
-### 🤖 Intelligent Field Assistant
--   **Context-Aware Chat**: integrated AI assistant that knows the current diagnosis context.
--   **Format-Rich Responses**: Supports bold text, lists, and clear highlighting for critical advice.
+-   **3D Bio-Network Background**: Interactive neural particle system (`React Three Fiber`).
+-   **Glassmorphism UI**: Premium "Gunmetal" aesthetic with frosted glass elements.
+-   **Field Assistant Protocol**: Context-aware chat sidebar for follow-up questions.
 
 ## 🛠️ Technology Stack
 
--   **Core**: [React 18](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/)
--   **Styling**: [Tailwind CSS v3](https://tailwindcss.com/)
--   **Animations**: [Framer Motion](https://www.framer.com/motion/)
--   **3D Graphics**: [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/), [Maath](https://github.com/pmndrs/maath)
--   **AI Engine**: [Google Gemini Pro Vision](https://deepmind.google/technologies/gemini/)
+-   **Frontend**: React 19, Vite 6, TypeScript
+-   **AI**: Google Gemini 2.5 Flash (`@google/genai`)
+-   **State/Internationalization**: `i18next`, `react-i18next`
+-   **Styling**: Tailwind CSS v4, Framer Motion
+-   **3D Graphics**: React Three Fiber, Maath
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 -   Node.js (v18+)
--   Gemini API Key
+-   Gemini API Key from [Google AI Studio](https://aistudio.google.com/)
 
 ### Installation
 
@@ -78,8 +78,10 @@ Our unique architecture splits the diagnostic process across specialized agents:
     npm run dev
     ```
 
-## 🔒 Security Note
-This application runs entirely client-side for demonstration purposes. API keys are stored in local environment variables. For production deployment, a backend proxy is recommended to secure the API credentials.
+## ⚠️ Quota & Billing
+This app uses **Gemini 2.5**, which has a strict free tier (~20 requests/day).
+-   If you see **"Quota Exceeded"**, please link a billing account to your Google Cloud Project.
+-   The "Pay-As-You-Go" tier is extremely cheap (~$0.10/million tokens) and removes these limits.
 
 ---
 
