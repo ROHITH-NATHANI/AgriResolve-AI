@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 // Model Registry optimized for speed and reasoning depth
 const MODEL_REGISTRY = {
     VISION_FAST: "models/gemini-2.5-flash-lite", // User requested specifically
-    DEBATE_HIGH_THROUGHPUT: "models/gemini-2.0-flash", // High Rate Limit for parallel args
+    DEBATE_HIGH_THROUGHPUT: "models/gemini-2.5-flash-lite", // Moved to Lite to avoid 429 on 2.0-flash
     ARBITRATION_SMART: "models/gemini-2.5-flash", // Better reasoning for verdicts
     EXPLANATION_POLISHED: "models/gemini-2.5-flash", // High quality generation
 };
