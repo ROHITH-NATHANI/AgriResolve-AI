@@ -23,7 +23,8 @@ export class ArbitrationAgent extends Agent {
     async run(
         healthyResult: any,
         diseaseResult: any,
-        quality: QualityReport
+        quality: QualityReport,
+        language: string = 'en'
     ): Promise<ArbitrationResult> {
         const prompt = `
       Act as the "Arbitration Agent". Judge the debate between Healthy and Disease agents.
@@ -35,12 +36,17 @@ export class ArbitrationAgent extends Agent {
       Rules:
       - If Quality < 0.5, lean towards Indeterminate.
       - High confidence requires strong evidence from one side.
-      - Better safe than sorry? No, be objective based on the arguments.
+      - Be objective based on the arguments.
       
       Output JSON:
-      - decision: One of ["Likely Healthy", "Possibly Healthy", "Possibly Abnormal", "Likely Abnormal", "Indeterminate"]
+      - decision: One of ["Likely Healthy", "Possibly Healthy", "Possibly Abnormal", "Likely Abnormal", "Indeterminate"] (ALWAYS KEEP IN ENGLISH)
       - confidence: float 0.0 - 1.0
       - rationale: List of reasons for the decision.
+
+      TRANSLATION INSTRUCTION:
+      The user's requested language is: "${language}".
+      Ensure the "rationale" array content is written in "${language}".
+      IMPORTANT: The "decision" field MUST remain in English (e.g., "Likely Healthy") for system logic.
     `;
 
         const response = await routeGeminiCall("ARBITRATION_SMART", prompt);

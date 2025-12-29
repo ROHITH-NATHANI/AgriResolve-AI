@@ -9,7 +9,10 @@ interface HypothesisDebateProps {
   isVisible: boolean;
 }
 
+import { useTranslation } from 'react-i18next';
+
 export const HypothesisDebate: React.FC<HypothesisDebateProps> = ({ healthy, disease, isVisible }) => {
+  const { t } = useTranslation();
   if (!isVisible) return null;
 
   return (
@@ -23,8 +26,8 @@ export const HypothesisDebate: React.FC<HypothesisDebateProps> = ({ healthy, dis
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-gray-900 leading-tight">Healthy Hypothesis</h3>
-            <p className="text-xs text-blue-600 font-medium uppercase tracking-wide">Defense Agent</p>
+            <h3 className="font-bold text-lg text-gray-900 leading-tight">{t('hypothesis_healthy')}</h3>
+            <p className="text-xs text-blue-600 font-medium uppercase tracking-wide">{t('agent_defense')}</p>
           </div>
           <div className="ml-auto bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
             {(healthy?.score * 100).toFixed(0)}% Conf
@@ -49,8 +52,8 @@ export const HypothesisDebate: React.FC<HypothesisDebateProps> = ({ healthy, dis
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-gray-900 leading-tight">Disease Hypothesis</h3>
-            <p className="text-xs text-red-600 font-medium uppercase tracking-wide">Pathology Agent</p>
+            <h3 className="font-bold text-lg text-gray-900 leading-tight">{t('hypothesis_disease')}</h3>
+            <p className="text-xs text-red-600 font-medium uppercase tracking-wide">{t('agent_pathology')}</p>
           </div>
           <div className="ml-auto bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-100">
             {(disease?.score * 100).toFixed(0)}% Conf

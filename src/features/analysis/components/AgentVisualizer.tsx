@@ -67,8 +67,27 @@ const getActiveIndex = (status: AssessmentStatus) => {
     return index;
 };
 
+import { useTranslation } from 'react-i18next';
+
 export const AgentVisualizer: React.FC<AgentVisualizerProps> = ({ status }) => {
+    const { t } = useTranslation();
     const activeIndex = getActiveIndex(status);
+
+    // Use manual mapping for translations to ensure type safety
+
+
+    // Actually, better to just map manually or use keys in the AGENTS array constant?
+    // Let's redefine the hook to map the static array inside.
+
+    // ... redefining standard logic below ...
+
+    const translatedAgents = [
+        { ...AGENTS[0], label: t('agent_vision') },
+        { ...AGENTS[1], label: t('agent_quality') },
+        { ...AGENTS[2], label: t('agent_debate') },
+        { ...AGENTS[3], label: t('agent_arbitration') },
+        { ...AGENTS[4], label: t('agent_explanation') },
+    ];
 
     if (status === AssessmentStatus.IDLE || status === AssessmentStatus.ERROR) return null;
 
@@ -76,7 +95,7 @@ export const AgentVisualizer: React.FC<AgentVisualizerProps> = ({ status }) => {
         <div className="w-full py-4 relative pb-12">
 
             <div className="flex items-start justify-between w-full relative z-10 px-2 lg:px-8">
-                {AGENTS.map((agent, index) => {
+                {translatedAgents.map((agent, index) => {
                     // Current step is active if index matches activeIndex
                     const isActive = index === activeIndex;
                     // Step is completed if index is less than activeIndex

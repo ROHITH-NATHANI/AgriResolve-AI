@@ -8,7 +8,10 @@ interface AssistantWidgetProps {
     data: AssessmentData | null;
 }
 
+import { useTranslation } from 'react-i18next';
+
 export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
+    const { t } = useTranslation();
     const { messages, isLoading, isOpen, toggleChat, sendMessage } = useAIChat(data);
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -44,10 +47,10 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
                                 <Bot className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-sm">Field Assistant</h3>
+                                <h3 className="font-bold text-sm">{t('assistant_title')}</h3>
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />
-                                    <span className="text-[10px] text-green-100 uppercase tracking-wide">Online</span>
+                                    <span className="text-[10px] text-green-100 uppercase tracking-wide">{t('online')}</span>
                                 </div>
                             </div>
                         </div>
@@ -113,7 +116,7 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
                             <input
                                 ref={inputRef}
                                 type="text"
-                                placeholder="Ask a question..."
+                                placeholder={t('ask_placeholder')}
                                 className="flex-1 bg-transparent outline-none text-sm text-gray-900 placeholder:text-gray-400"
                                 onKeyDown={handleKeyDown}
                             />
@@ -126,7 +129,7 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
                             </button>
                         </div>
                         <div className="text-[10px] text-center text-gray-400 mt-2 font-medium">
-                            AI assisted guidance. Verify critical field decisions.
+                            {t('disclaimer')}
                         </div>
                     </div>
                 </div>

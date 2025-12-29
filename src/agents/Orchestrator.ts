@@ -18,7 +18,8 @@ export type StatusCallback = (status: AssessmentStatus) => void;
 
 export async function runAgenticPipeline(
     imageB64: string,
-    onStatusUpdate: StatusCallback
+    onStatusUpdate: StatusCallback,
+    language: string = 'en'
 ): Promise<AssessmentData> {
 
     // 1. Vision
@@ -33,17 +34,19 @@ export async function runAgenticPipeline(
     onStatusUpdate(AssessmentStatus.DEBATING);
     // Run both agents in parallel for efficiency
     const [healthyResult, diseaseResult] = await Promise.all([
-        healthyAgent.run(visionEvidence, quality),
-        diseaseAgent.run(visionEvidence, quality)
+        healthyAgent.run(visionEvidence, quality, language),
+        diseaseAgent.run(visionEvidence, quality, language)
     ]);
 
     // 4. Arbitration
     onStatusUpdate(AssessmentStatus.ARBITRATING);
-    const arbitrationResult = await arbitrationAgent.run(healthyResult, diseaseResult, quality);
+    const arbitrationResult = await arbitrationAgent.run(healthyResult, diseaseResult, quality, language);
+
 
     // 5. Explanation
     onStatusUpdate(AssessmentStatus.EXPLAINING);
-    const explanation = await explanationAgent.run(arbitrationResult, healthyResult, diseaseResult);
+    // Pass language to generating the explanation
+    const explanation = await explanationAgent.run(arbitrationResult, healthyResult, diseaseResult, language);
 
     onStatusUpdate(AssessmentStatus.COMPLETED);
 

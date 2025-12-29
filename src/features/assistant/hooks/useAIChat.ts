@@ -9,7 +9,10 @@ export interface ChatMessage {
     timestamp: number;
 }
 
+import { useTranslation } from 'react-i18next';
+
 export const useAIChat = (contextData: AssessmentData | null) => {
+    const { t, i18n } = useTranslation();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +23,7 @@ export const useAIChat = (contextData: AssessmentData | null) => {
             setMessages([{
                 id: 'welcome',
                 sender: 'ai',
-                text: "Hello! I'm your Field Assistant. Ask me anything about crop health or the current diagnosis.",
+                text: t('assistant_placeholder') || "Hello! I'm your Field Assistant.", // Fallback if key missing
                 timestamp: Date.now()
             }]);
         }
@@ -45,6 +48,10 @@ export const useAIChat = (contextData: AssessmentData | null) => {
             let systemContext = `
         You are an expert Agricultural Field Assistant.
         Your goal is to help farmers and agronomists understand crop health issues.
+        
+        IMPORTANT: The user is speaking in language code: "${i18n.language}".
+        You MUST answer in this language.
+        
         Be concise, practical, and helpful. 
         If a diagnosis is provided below, use it to answer questions specifically about THAT problem.
       `;

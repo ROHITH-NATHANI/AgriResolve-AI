@@ -9,7 +9,11 @@ interface LayoutProps {
   onSelectHistory?: (record: CropAnalysisRecord) => void;
 }
 
+import { useTranslation } from 'react-i18next';
+
 export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelectHistory = () => { } }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-inter bg-gray-50">
       {/* Sidebar - Professional & Solid */}
@@ -23,7 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
               <h1 className="text-lg font-bold text-gray-900 tracking-tight">AgriResolve AI</h1>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-semibold text-green-700 tracking-wide uppercase">System Online</span>
+                <span className="text-xs font-semibold text-green-700 tracking-wide uppercase">{t('online')}</span>
               </div>
             </div>
           </div>
@@ -32,7 +36,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
         {/* History Section */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           <div className="p-4 pb-2 bg-gray-50/50 border-b border-gray-100">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Recent Diagnostics</h2>
+            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">{t('history_header')}</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-2">
             <HistorySidebar history={history} onSelect={onSelectHistory} />
@@ -45,9 +49,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
             <div className="flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-blue-700 mt-0.5 shrink-0" />
               <div>
-                <h3 className="text-xs font-bold text-blue-900 uppercase">Certified Tool</h3>
+                <h3 className="text-xs font-bold text-blue-900 uppercase">{t('cert_tool')}</h3>
                 <p className="text-[10px] text-blue-800 leading-relaxed mt-1">
-                  Results for decision support only. Consult an agronomist for prescriptions.
+                  {t('disclaimer')}
                 </p>
               </div>
             </div>

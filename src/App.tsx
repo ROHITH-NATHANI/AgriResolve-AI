@@ -12,14 +12,72 @@ import { BioNetworkScene } from './features/visualization/components/BioNetworkS
 import { Upload, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useTranslation } from 'react-i18next';
+import { Globe } from 'lucide-react';
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिंदी' },
+  { code: 'te', label: 'తెలుగు' },
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'ml', label: 'മലയാളം' },
+  { code: 'kn', label: 'ಕನ್ನಡ' },
+  { code: 'mr', label: 'मराठी' },
+  { code: 'bn', label: 'বাংলা' },
+  { code: 'gu', label: 'ગુજરાતી' },
+  { code: 'pa', label: 'ਪੰਜਾਬੀ' },
+];
+
+import { translateAssessmentData } from './services/TranslationService';
+
 const App: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [status, setStatus] = useState<AssessmentStatus>(AssessmentStatus.IDLE);
   const [image, setImage] = useState<string | null>(null);
   const [data, setData] = useState<AssessmentData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Cache to store translated results: { 'en': dataEn, 'te': dataTe, ... }
+  const [assessmentCache, setAssessmentCache] = useState<Record<string, AssessmentData>>({});
+
+  // Track the original "source of truth" data (usually English or first generation)
+  // This ensures we always translate from a valid full structure if the current view is partial/translated
+  const [baseData, setBaseData] = useState<AssessmentData | null>(null);
+
   const { history, addRecord } = usePersistentHistory();
+
+  // Handle Dynamic Translation on Language Change
+  React.useEffect(() => {
+    const handleTranslation = async () => {
+      // Only proceed if we have a completed assessment and the base data
+      if (status !== AssessmentStatus.COMPLETED || !baseData) return;
+
+      const currentLang = i18n.language;
+
+      // 1. Check Cache
+      if (assessmentCache[currentLang]) {
+        setData(assessmentCache[currentLang]);
+        return;
+      }
+
+      // 2. If not cached, Translate
+      // Show a mini-loading state if desired, or just translate in background
+      // For better UX, we could set a "translating" flag, but for now we'll just update when ready.
+
+      try {
+        const translated = await translateAssessmentData(baseData, currentLang);
+
+        // 3. Update Cache & State
+        setAssessmentCache(prev => ({ ...prev, [currentLang]: translated }));
+        setData(translated);
+      } catch (err) {
+        console.error("Translation Error", err);
+      }
+    };
+
+    handleTranslation();
+  }, [i18n.language, baseData, status]); // Dependencies: run when language changes
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -38,33 +96,40 @@ const App: React.FC = () => {
     setStatus(AssessmentStatus.PERCEIVING);
     setError(null);
     setData(null);
+    setBaseData(null); // Reset base data
+    setAssessmentCache({}); // Reset cache for new image
 
     try {
+      // Pass current language to the pipeline
       const result = await runAgenticPipeline(img, (newStatus) => {
         setStatus(newStatus);
-      });
+      }, i18n.language);
+
       setData(result);
+      setBaseData(result); // Store as base for future translations
+
+      // Cache the initial result for the current language
+      setAssessmentCache({ [i18n.language]: result });
 
       // Save to History
       const record = {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
-        imageBlob: file, // File is a Blob
+        imageBlob: file,
         diagnosis: {
-          primaryIssue: result.arbitrationResult.final_diagnosis,
+          primaryIssue: result.arbitrationResult.decision, // Correct property name
           confidence: result.arbitrationResult.confidence_score,
           description: result.explanation.summary,
           recommendedActions: result.explanation.guidance[0] || "Consult an agronomist."
         },
-        healthStatus: result.healthyResult.is_healthy ? 'healthy' : 'critical', // Simplified logic
-        agentLogs: [] // Can populate if needed
+        healthStatus: result.healthyResult.is_healthy ? 'healthy' : 'critical',
+        agentLogs: []
       };
-      // Type assertion or update types to match exactly if needed
       addRecord(record as any);
 
     } catch (err) {
       console.error(err);
-      setError('An error occurred during assessment. Please try with a clearer image.');
+      setError(t('error_msg'));
       setStatus(AssessmentStatus.ERROR);
     }
   };
@@ -77,20 +142,42 @@ const App: React.FC = () => {
     setStatus(AssessmentStatus.IDLE);
     setImage(null);
     setData(null);
+    setBaseData(null);
     setError(null);
+    setAssessmentCache({});
+  };
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   return (
     <Layout history={history} onSelectHistory={() => { }}>
       <BioNetworkScene />
 
-      <div className="mb-6 border-b border-gray-200/50 pb-6 relative z-10 backdrop-blur-sm bg-white/30 rounded-t-2xl p-6 -mx-6 -mt-6">
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-          Crop Health Diagnostic
-        </h2>
-        <p className="text-gray-500 mt-1 text-sm font-medium">
-          Multi-Agent Analysis System • v2.1.0 (Stable)
-        </p>
+      <div className="mb-6 border-b border-gray-200/50 pb-6 relative z-10 backdrop-blur-sm bg-white/30 rounded-t-2xl p-6 -mx-6 -mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            {t('app_title')}
+          </h2>
+          <p className="text-gray-500 mt-1 text-sm font-medium">
+            {t('subtitle')} • v2.1.0
+          </p>
+        </div>
+
+        {/* Language Selector */}
+        <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">
+          <Globe className="w-4 h-4 text-gray-500" />
+          <select
+            value={i18n.language}
+            onChange={(e) => changeLanguage(e.target.value)}
+            className="bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer"
+          >
+            {LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code}>{lang.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="relative z-10">
@@ -101,8 +188,8 @@ const App: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-center space-y-2 mb-12"
             >
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight">Crop Health Diagnostic</h1>
-              <p className="text-gray-500 font-medium">Multi-Agent Analysis System • v2.1.0 (Stable)</p>
+              <h1 className="text-4xl font-black text-gray-900 tracking-tight">{t('app_title')}</h1>
+              <p className="text-gray-500 font-medium">{t('subtitle')}</p>
             </motion.div>
 
             {/* Upload Section with Scale Animation */}
@@ -116,10 +203,10 @@ const App: React.FC = () => {
                 <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Upload className="w-10 h-10 text-green-600" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Upload Leaf Image</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('upload_title')}</h2>
                 <p className="text-gray-600 mb-8 max-w-md mx-auto text-lg">
-                  Upload a clear image of a single leaf to begin analysis.
-                  <br /><span className="text-sm text-gray-400">Supported formats: JPEG, PNG</span>
+                  {t('upload_desc')}
+                  <br /><span className="text-sm text-gray-400">{t('upload_sub')}</span>
                 </p>
 
                 <label className="relative inline-flex group cursor-pointer">
@@ -129,7 +216,7 @@ const App: React.FC = () => {
                     className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-green-600 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600"
                   >
                     <Upload className="w-5 h-5 mr-2" />
-                    SELECT IMAGE FILE
+                    {t('select_button')}
                   </button>
                   <input
                     id="file-upload"
@@ -168,9 +255,9 @@ const App: React.FC = () => {
                   <div className="hidden md:block absolute top-[2.5rem] left-[20%] right-[20%] h-0.5 bg-gray-100 -z-10" />
 
                   {[
-                    { icon: Upload, title: "1. Upload Sample", desc: "Use a clear, focused image of the affected area with good lighting." },
-                    { icon: CheckCircle2, title: "2. Automated Analysis", desc: "Our multi-agent grid evaluates visual symptoms & image quality." },
-                    { icon: FileText, title: "3. Review Results", desc: "Receive an explainable diagnosis with confidence scores & treatment guidance." }
+                    { icon: Upload, title: t('workflow_1_title'), desc: t('workflow_1_desc') },
+                    { icon: CheckCircle2, title: t('workflow_2_title'), desc: t('workflow_2_desc') },
+                    { icon: FileText, title: t('workflow_3_title'), desc: t('workflow_3_desc') }
                   ].map((step, idx) => (
                     <div key={idx} className="flex flex-col items-center text-center group">
                       <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm mb-4 relative z-10 group-hover:border-green-200 transition-colors">

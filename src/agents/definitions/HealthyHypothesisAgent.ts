@@ -13,7 +13,7 @@ export class HealthyHypothesisAgent extends Agent {
     agentName = "HealthyHypothesisAgent";
     role = "Argues for benign explanations, preferring false negatives. Conservative.";
 
-    async run(evidence: VisionEvidence, quality: QualityReport): Promise<HypothesisResult> {
+    async run(evidence: VisionEvidence, quality: QualityReport, language: string = 'en'): Promise<HypothesisResult> {
         const prompt = `
       Act as the "Healthy Hypothesis Agent". Your goal is to argue that the crop is HEALTHY or that anomalies are benign (abiotic, lighting, etc.).
       You are skeptical of disease claims.
@@ -24,6 +24,11 @@ export class HealthyHypothesisAgent extends Agent {
       Output JSON:
       - score: Confidence (0.0 - 1.0) that the plant is HEALTHY.
       - arguments: List of strings arguing WHY it looks healthy (e.g. "Spots are irregular and suggest mechanical damage", "Green area dominates").
+      
+      TRANSLATION INSTRUCTION:
+      The user's requested language is: "${language}".
+      Ensure the "arguments" array content is written in "${language}".
+      However, keep the JSON keys (score, arguments) in English.
     `;
 
         const response = await routeGeminiCall("DEBATE_HIGH_THROUGHPUT", prompt);
