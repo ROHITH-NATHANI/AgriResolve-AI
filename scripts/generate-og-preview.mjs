@@ -31,13 +31,13 @@ async function main() {
 <svg xmlns="http://www.w3.org/2000/svg" width="${OG_W}" height="${OG_H}" viewBox="0 0 ${OG_W} ${OG_H}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#022c22"/> <!-- emerald-950 -->
-      <stop offset="50%" stop-color="#064e3b"/> <!-- emerald-900 -->
-      <stop offset="100%" stop-color="#065f46"/> <!-- emerald-800 -->
+      <stop offset="0%" stop-color="#0f172a"/> <!-- slate-950 -->
+      <stop offset="50%" stop-color="#1e293b"/> <!-- slate-800 -->
+      <stop offset="100%" stop-color="#334155"/> <!-- slate-700 -->
     </linearGradient>
     <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#84cc16" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#22c55e" stop-opacity="0.10"/>
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0.05"/>
     </linearGradient>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
@@ -49,22 +49,23 @@ async function main() {
   <rect width="100%" height="100%" fill="url(#grid)"/>
   <rect x="0" y="0" width="100%" height="100%" fill="url(#glow)"/>
 
-  <!-- Decorative Orbs -->
+  <!-- Decorative Orbs (Cooler tones to contrast with green logo) -->
   <g opacity="0.4">
-    <circle cx="1000" cy="100" r="300" fill="#16a34a" opacity="0.2" filter="blur(80px)" />
-    <circle cx="200" cy="500" r="250" fill="#15803d" opacity="0.2" filter="blur(60px)" />
+    <circle cx="1000" cy="100" r="300" fill="#0ea5e9" opacity="0.15" filter="blur(80px)" />
+    <circle cx="200" cy="500" r="250" fill="#6366f1" opacity="0.15" filter="blur(60px)" />
   </g>
 
   <!-- Glass Card Container -->
   <g>
-    <rect x="60" y="60" width="1080" height="510" rx="32" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+    <rect x="60" y="60" width="1080" height="510" rx="32" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
     <!-- Inner highlight -->
     <rect x="62" y="62" width="1076" height="506" rx="30" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2" />
   </g>
 
-  <!-- Logo Section -->
+  <!-- Logo Section (White glow behind logo to make it pop) -->
   <g transform="translate(100, 165)">
-    <circle cx="150" cy="150" r="130" fill="rgba(255,255,255,0.05)" />
+    <circle cx="150" cy="150" r="130" fill="rgba(255,255,255,0.08)" />
+    <circle cx="150" cy="150" r="100" fill="rgba(255,255,255,0.05)" filter="blur(20px)" />
     <image href="data:image/svg+xml;base64,${logoB64}" x="20" y="20" width="260" height="260" />
   </g>
 
