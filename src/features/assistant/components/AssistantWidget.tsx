@@ -19,7 +19,7 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const { isListening, transcript, startListening, stopListening, hasSupport: hasSTT } = useSpeechRecognition();
-    const { isSpeaking, speak, cancel: stopSpeaking, hasSupport: hasTTS } = useTextToSpeech();
+    const { speak, cancel: stopSpeaking, hasSupport: hasTTS } = useTextToSpeech();
     const [isTtsMuted, setIsTtsMuted] = useState(false);
 
     const {
@@ -166,10 +166,10 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
                                     }`}>
                                     <ReactMarkdown
                                         components={{
-                                            p: ({ node, ...props }) => <p className="mb-1 last:mb-0" {...props} />,
-                                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
-                                            li: ({ node, ...props }) => <li className={`marker:${msg.sender === 'user' ? 'text-green-200' : 'text-green-600'}`} {...props} />,
-                                            strong: ({ node, ...props }) => <strong className={`font-bold ${msg.sender === 'user' ? 'text-green-100' : 'text-green-700'}`} {...props} />
+                                            p: ({ node: _node, ...props }) => <p className="mb-1 last:mb-0" {...props} />,
+                                            ul: ({ node: _node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+                                            li: ({ node: _node, ...props }) => <li className={`marker:${msg.sender === 'user' ? 'text-green-200' : 'text-green-600'}`} {...props} />,
+                                            strong: ({ node: _node, ...props }) => <strong className={`font-bold ${msg.sender === 'user' ? 'text-green-100' : 'text-green-700'}`} {...props} />
                                         }}
                                     >
                                         {msg.text}

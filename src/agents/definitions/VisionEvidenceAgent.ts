@@ -29,6 +29,6 @@ export class VisionEvidenceAgent extends Agent {
     `;
 
         const response = await routeGeminiCall("VISION_FAST", prompt, imageB64);
-        return this.parseJSON(response);
+        return this.parseJSON(response) as VisionEvidence;
     }
 }

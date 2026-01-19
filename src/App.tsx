@@ -1,16 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Layout } from './components/Layout';
 import { AssessmentStatus, AssessmentData } from './types';
 import { runAgenticPipeline } from './agents/Orchestrator';
 import { HypothesisDebate } from './components/HypothesisDebate';
 import { FinalResults } from './components/FinalResults';
+import { CropAnalysisRecord } from './features/history/types';
 import { AgentVisualizer } from './features/analysis/components/AgentVisualizer';
 import { ScanOverlay } from './features/analysis/components/ScanOverlay';
 import { usePersistentHistory } from './features/history/hooks/usePersistentHistory';
 import { AssistantWidget } from './features/assistant/components/AssistantWidget';
 import { BioNetworkScene } from './features/visualization/components/BioNetworkScene';
 import { Upload, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
@@ -36,7 +37,7 @@ const App: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [data, setData] = useState<AssessmentData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   // Cache to store translated results: { 'en': dataEn, 'te': dataTe, ... }
   const [assessmentCache, setAssessmentCache] = useState<Record<string, AssessmentData>>({});
@@ -131,21 +132,25 @@ const App: React.FC = () => {
       // Mark completed after translation is ready
       setStatus(AssessmentStatus.COMPLETED);
 
+
+
+      // ... inside component ...
+
       // Save to History
-      const record = {
+      const record: CropAnalysisRecord = {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
         imageBlob: file,
         diagnosis: {
           primaryIssue: view.arbitrationResult.decision, // Correct property name
-          confidence: view.arbitrationResult.confidence ?? view.arbitrationResult.confidence_score ?? 0,
+          confidence: view.arbitrationResult.confidence ?? 0,
           description: view.explanation.summary,
           recommendedActions: view.explanation.guidance[0] || "Consult an agronomist."
         },
-        healthStatus: view.healthyResult.is_healthy ? 'healthy' : 'critical',
+        healthStatus: view.arbitrationResult.decision.toLowerCase().includes('healthy') ? 'healthy' : 'critical',
         agentLogs: []
       };
-      addRecord(record as any);
+      addRecord(record);
 
     } catch (err) {
       console.error(err);
@@ -154,9 +159,7 @@ const App: React.FC = () => {
     }
   };
 
-  const triggerUpload = () => {
-    fileInputRef.current?.click();
-  };
+
 
   const reset = () => {
     setStatus(AssessmentStatus.IDLE);

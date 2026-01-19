@@ -48,6 +48,6 @@ export class ConsensusAgent extends Agent {
     `;
 
         const response = await routeGeminiCall("DEBATE_HIGH_THROUGHPUT", prompt);
-        return this.parseJSON(response);
+        return this.parseJSON(response) as ConsensusResult;
     }
 }

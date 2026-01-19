@@ -105,11 +105,11 @@ export const useAIChat = (contextData: AssessmentData | null, locationContext?: 
 
                 systemContext += `
           \n--- CURRENT DIAGNOSIS ---
-          Overall Decision: ${contextData.arbitrationResult.final_diagnosis || contextData.arbitrationResult.decision || "Unknown"}
+          Overall Decision: ${contextData.arbitrationResult.decision || "Unknown"}
           Explanation: ${contextData.explanation.summary}
           
           --- DETAILED ANALYSIS ---
-          Visual Findings: ${contextData.visionEvidence?.findings?.join(', ') || "None"}
+          Visual Findings: ${contextData.visionEvidence?.anomalies_detected?.join(', ') || "None"}
           
           --- LEAF ASSESSMENTS ---
           ${leafCtx}

@@ -44,7 +44,7 @@ export function usePersistentHistory() {
         setHistory(prev => prev.filter(r => r.id !== id));
         try {
             await HistoryService.deleteRecord(id);
-        } catch (err) {
+        } catch (_err) {
             setHistory(backup); // Revert
             setError('Failed to delete record.');
         }

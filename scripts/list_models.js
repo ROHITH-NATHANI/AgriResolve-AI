@@ -9,10 +9,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: resolve(__dirname, '../.env') });
 
-const apiKey = process.env.VITE_GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_TOKEN;
 
 if (!apiKey) {
-    console.error("Error: VITE_GEMINI_API_KEY not found in .env");
+    console.error("Error: GEMINI_API_TOKEN not found in .env");
     process.exit(1);
 }
 

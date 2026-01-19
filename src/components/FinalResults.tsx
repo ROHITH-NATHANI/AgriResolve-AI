@@ -134,7 +134,7 @@ export const FinalResults: React.FC<FinalResultsProps> = ({ data, sourceImage })
           <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100">
             <h4 className="text-xs font-bold text-blue-800 uppercase tracking-widest mb-3">{t('vision_findings', { defaultValue: 'Vision Findings' })}</h4>
             <ul className="space-y-2">
-              {data.visionEvidence?.findings?.map((finding: string, i: number) => (
+              {data.visionEvidence?.anomalies_detected?.map((finding: string, i: number) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 shrink-0" />
                   {finding}
@@ -145,7 +145,7 @@ export const FinalResults: React.FC<FinalResultsProps> = ({ data, sourceImage })
 
           <div className="bg-gray-50/50 rounded-xl p-5 border border-gray-100">
             <h4 className="text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">{t('uncertainty_factors', { defaultValue: 'Uncertainty Factors' })}</h4>
-            {data.uncertaintyFactors && Object.entries(data.uncertaintyFactors).some(([k, v]) => v === true || (Array.isArray(v) && v.length > 0)) ? (
+            {data.uncertaintyFactors && Object.entries(data.uncertaintyFactors).some(([_k, v]) => v === true || (Array.isArray(v) && v.length > 0)) ? (
               <ul className="space-y-2">
                 {data.uncertaintyFactors.lowImageQuality && (
                   <li className="flex items-center gap-2 text-sm text-amber-700"><AlertCircle className="w-4 h-4" /> {t('low_image_quality', { defaultValue: 'Low Image Quality' })}</li>
@@ -169,7 +169,7 @@ export const FinalResults: React.FC<FinalResultsProps> = ({ data, sourceImage })
 
       {/* 2. Leaf Assessments */}
       <div className="space-y-4">
-        {data.leafAssessments && data.leafAssessments.length > 0 ? (
+        {data.leafAssessments && Array.isArray(data.leafAssessments) && data.leafAssessments.length > 0 ? (
           data.leafAssessments.map((leaf, index) => (
             <div key={index} className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
@@ -202,17 +202,17 @@ export const FinalResults: React.FC<FinalResultsProps> = ({ data, sourceImage })
                 </div>
 
                 <div className="md:col-span-8 space-y-3">
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('observations', { defaultValue: 'Observations' })}</p>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    {leaf.observations.map((obs, i) => <li key={i}>• {obs}</li>)}
-                  </ul>
-                </div>
-                {leaf.notes && (
-                  <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100 text-xs text-yellow-800">
-                    <strong>{t('note_label', { defaultValue: 'Note:' })}</strong> {leaf.notes}
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('observations', { defaultValue: 'Observations' })}</p>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      {leaf.observations.map((obs, i) => <li key={i}>• {obs}</li>)}
+                    </ul>
                   </div>
-                )}
+                  {leaf.notes && (
+                    <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100 text-xs text-yellow-800">
+                      <strong>{t('note_label', { defaultValue: 'Note:' })}</strong> {leaf.notes}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

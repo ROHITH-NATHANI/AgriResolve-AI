@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Brain, Eye, ShieldCheck, Scale, FileText, Activity } from 'lucide-react';
+import { Brain, Eye, ShieldCheck, Scale, FileText } from 'lucide-react';
 import { AssessmentStatus } from '../../../types';
 import { cn } from '../../../lib/utils';
 
@@ -114,7 +114,7 @@ export const AgentVisualizer: React.FC<AgentVisualizerProps> = ({ status }) => {
                                         backgroundColor: isActive || isCompleted ? 'var(--bg-color)' : '#f3f4f6',
                                         boxShadow: isActive ? "0 4px 12px -2px rgba(0,0,0,0.1)" : "none"
                                     }}
-                                    style={{ '--bg-color': isCompleted ? '#16a34a' : '#ffffff' } as any}
+                                    style={{ '--bg-color': isCompleted ? '#16a34a' : '#ffffff' } as React.CSSProperties}
                                     className={cn(
                                         "w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-colors duration-500 border-[1.5px] relative z-30",
                                         isActive ? "border-green-500 bg-green-50 text-green-600" :

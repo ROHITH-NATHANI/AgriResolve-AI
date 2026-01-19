@@ -2,9 +2,10 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
+import * as THREE from 'three';
 
-const Particles = (props: any) => {
-    const ref = useRef<any>(null);
+const Particles = (props: Record<string, unknown>) => {
+    const ref = useRef<THREE.Points>(null);
 
     // Generate 2000 random points in a sphere
     const sphere = useMemo(() => random.inSphere(new Float32Array(2000 * 3), { radius: 1.5 }), []);
@@ -34,7 +35,7 @@ const Particles = (props: any) => {
 
 const Connections = () => {
     // A secondary slower moving layer for depth
-    const ref = useRef<any>(null);
+    const ref = useRef<THREE.Points>(null);
     const sphere = useMemo(() => random.inSphere(new Float32Array(500 * 3), { radius: 2 }), []);
 
     useFrame((state, delta) => {

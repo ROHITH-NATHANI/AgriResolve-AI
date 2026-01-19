@@ -3,11 +3,18 @@ import { routeGeminiCall } from '../../services/gemini';
 import { VisionEvidence } from './VisionEvidenceAgent';
 import { QualityReport } from './QualityEvaluator';
 
+import { HypothesisResult } from './HealthyHypothesisAgent';
+
+interface HypothesisResponse {
+    score: number;
+    arguments: string[];
+}
+
 export class DiseaseHypothesisAgent extends Agent {
     agentName = "DiseaseHypothesisAgent";
     role = "Argues for abnormal pathology. Risk-sensitive, anomaly-seeking.";
 
-    async run(evidence: VisionEvidence, quality: QualityReport, language: string = 'en'): Promise<{ score: number, arguments: string[], evidence_refs: any }> {
+    async run(evidence: VisionEvidence, quality: QualityReport, language: string = 'en'): Promise<HypothesisResult> {
         const prompt = `
       Act as the "Disease Hypothesis Agent". Your goal is to highlight potential RISKS and ABNORMALITIES.
       You prefer false positives over missing a disease.
@@ -26,7 +33,7 @@ export class DiseaseHypothesisAgent extends Agent {
     `;
 
         const response = await routeGeminiCall("DEBATE_HIGH_THROUGHPUT", prompt);
-        const result = this.parseJSON(response);
+        const result = this.parseJSON(response) as HypothesisResponse;
 
         return {
             score: result.score,

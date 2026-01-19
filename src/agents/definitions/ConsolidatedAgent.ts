@@ -1,5 +1,6 @@
 import { routeGeminiCall } from '../../services/gemini';
 import { AssessmentData } from '../../types';
+import { QualityFlag } from './QualityEvaluator';
 
 export class ConsolidatedAgent {
   async run(imageB64: string, language: string = 'en'): Promise<AssessmentData> {
@@ -35,8 +36,12 @@ export class ConsolidatedAgent {
                 "message": "Valid leaf detected" OR "Invalid subject..."
               },
               "visionEvidence": {
-                "findings": ["Visual observation 1", "Visual observation 2"],
-                 "regions": ["leaf_tip", "stem"]
+                "lesion_color": "string",
+                "lesion_shape": "string",
+                "texture": "string",
+                "distribution": "string",
+                "anomalies_detected": ["visual anomaly 1", "visual anomaly 2"],
+                "raw_analysis": "brief technical description"
               },
               "leafAssessments": [
                 {
@@ -53,14 +58,13 @@ export class ConsolidatedAgent {
                 "visuallySimilarConditions": boolean,
                 "other": ["list other factors"]
               },
-              "quality": { "score": 0.0-1.0, "issues": [] },
-              "healthyResult": { "score": 0.0-1.0, "is_healthy": boolean, "arguments": [] },
-              "diseaseResult": { "score": 0.0-1.0, "arguments": [] },
+              "quality": { "score": 0.0-1.0, "flags": ["OK", "BLURRY", "NOT_LEAF/BACKGROUND_NOISE"], "reasoning": "string" },
+              "healthyResult": { "score": 0.0-1.0, "arguments": [], "evidence_refs": {} },
+              "diseaseResult": { "score": 0.0-1.0, "arguments": [], "evidence_refs": {} },
               "arbitrationResult": {
                 "decision": "Conservative Decision",
                 "confidence": 0.0-1.0, 
-                "rationale": ["Reason 1", "Reason 2"],
-                "final_diagnosis": "standard_id_or_unknown"
+                "rationale": ["Reason 1", "Reason 2"]
               },
               "explanation": {
                 "summary": "Cautious summary of uncertainty and findings.",
@@ -71,7 +75,7 @@ export class ConsolidatedAgent {
             CRITICAL RULES:
             - Output ONLY raw JSON. No markdown.
             - If "valid_subject" is false, stop there.
-            - If confidence is low, "final_diagnosis" MUST be "unknown".
+            - If confidence is low, "decision" MUST be "Unknown".
             - SAFETY: Do NOT provide pesticide/fungicide/herbicide product names, mixing instructions, dosing, spray rates, or any hazardous step-by-step guidance.
             - SAFETY: Do NOT provide human/animal medical advice. If the user mentions exposure/poisoning risk, advise contacting local emergency services/poison control.
         `;
@@ -84,15 +88,21 @@ export class ConsolidatedAgent {
       if (data.subjectValidation && !data.subjectValidation.valid_subject) {
         return {
           imageUrl: null,
-          visionEvidence: { findings: [], regions: [] },
-          quality: { score: 0, issues: ["Invalid Subject"] },
-          healthyResult: { score: 0, is_healthy: false, arguments: [] },
-          diseaseResult: { score: 0, arguments: [] },
+          visionEvidence: {
+            lesion_color: "none",
+            lesion_shape: "none",
+            texture: "none",
+            distribution: "none",
+            anomalies_detected: [],
+            raw_analysis: "Invalid subject"
+          },
+          quality: { score: 0, flags: [QualityFlag.NOT_LEAF], reasoning: data.subjectValidation.message || "Invalid Subject" },
+          healthyResult: { score: 0, arguments: [], evidence_refs: {} },
+          diseaseResult: { score: 0, arguments: [], evidence_refs: {} },
           arbitrationResult: {
             decision: "Not a Leaf",
             confidence: 0,
-            rationale: [data.subjectValidation.message || "Invalid subject."],
-            final_diagnosis: "invalid_subject"
+            rationale: [data.subjectValidation.message || "Invalid subject."]
           },
           explanation: {
             summary: "Please upload a clear image of a specific crop leaf.",
@@ -103,16 +113,24 @@ export class ConsolidatedAgent {
             multipleLeaves: false,
             visuallySimilarConditions: false,
             other: ["Invalid subject"]
-          }
+          },
+          subjectValidation: data.subjectValidation
         };
       }
 
       return {
         imageUrl: null,
-        visionEvidence: data.visionEvidence || { findings: [], regions: [] },
-        quality: data.quality || { score: 1, issues: [] },
-        healthyResult: data.healthyResult || { score: 0, is_healthy: false, arguments: [] },
-        diseaseResult: data.diseaseResult || { score: 0, arguments: [] },
+        visionEvidence: data.visionEvidence || {
+          lesion_color: "unknown",
+          lesion_shape: "unknown",
+          texture: "unknown",
+          distribution: "unknown",
+          anomalies_detected: [],
+          raw_analysis: "No analysis"
+        },
+        quality: data.quality || { score: 1, flags: [QualityFlag.OK], reasoning: "Acceptable" },
+        healthyResult: data.healthyResult || { score: 0, arguments: [], evidence_refs: {} },
+        diseaseResult: data.diseaseResult || { score: 0, arguments: [], evidence_refs: {} },
         arbitrationResult: data.arbitrationResult || { decision: "Unknown", confidence: 0, rationale: [] },
         explanation: data.explanation || { summary: "Analysis failed.", guidance: [] },
         leafAssessments: data.leafAssessments || [],
@@ -121,7 +139,8 @@ export class ConsolidatedAgent {
           multipleLeaves: false,
           visuallySimilarConditions: false,
           other: []
-        }
+        },
+        subjectValidation: data.subjectValidation
       };
     } catch (error) {
       console.error("Consolidated Agent Error:", error);

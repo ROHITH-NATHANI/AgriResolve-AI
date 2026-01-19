@@ -11,21 +11,22 @@ export enum AssessmentStatus {
   ERROR = 'ERROR'
 }
 
-// Re-export specific agent types for UI use if needed
-export type { VisionEvidence } from './agents/definitions/VisionEvidenceAgent';
-export type { QualityReport } from './agents/definitions/QualityEvaluator';
-export type { HypothesisResult } from './agents/definitions/HealthyHypothesisAgent';
-export type { ArbitrationResult, DecisionState } from './agents/definitions/ArbitrationAgent';
+import { VisionEvidence } from './agents/definitions/VisionEvidenceAgent';
+import { QualityReport } from './agents/definitions/QualityEvaluator';
+import { HypothesisResult } from './agents/definitions/HealthyHypothesisAgent';
+import { ArbitrationResult, DecisionState } from './agents/definitions/ArbitrationAgent';
+
+export type { VisionEvidence, QualityReport, HypothesisResult, ArbitrationResult, DecisionState };
 
 // Comprehensive Assessment Data covering all agents
 export interface AssessmentData {
   imageUrl: string | null;
   // Agent Outputs
-  visionEvidence: any; // Ideally typed as VisionEvidence
-  quality: any;        // Ideally typed as QualityReport
-  healthyResult: any;  // Ideally typed as HypothesisResult
-  diseaseResult: any;  // Ideally typed as HypothesisResult
-  arbitrationResult: any; // Ideally typed as ArbitrationResult
+  visionEvidence: VisionEvidence;
+  quality: QualityReport;
+  healthyResult: HypothesisResult;
+  diseaseResult: HypothesisResult;
+  arbitrationResult: ArbitrationResult;
   explanation: {
     summary: string;
     guidance: string[];
@@ -43,4 +44,10 @@ export interface AssessmentData {
     visuallySimilarConditions: boolean;
     other: string[];
   };
+  subjectValidation?: SubjectValidation;
+}
+
+export interface SubjectValidation {
+  valid_subject: boolean;
+  message: string;
 }

@@ -44,7 +44,7 @@ export async function translateAssessmentData(
 
     INPUT JSON:
     ${JSON.stringify({
-        subjectValidation: (data as any).subjectValidation,
+        subjectValidation: data.subjectValidation,
         visionEvidence: data.visionEvidence,
         leafAssessments: data.leafAssessments,
         uncertaintyFactors: data.uncertaintyFactors,
@@ -66,7 +66,7 @@ export async function translateAssessmentData(
         // Merge back into original object
         return {
             ...data,
-            subjectValidation: translatedParts.subjectValidation ?? (data as any).subjectValidation,
+            subjectValidation: translatedParts.subjectValidation ?? data.subjectValidation,
             visionEvidence: translatedParts.visionEvidence ?? data.visionEvidence,
             leafAssessments: translatedParts.leafAssessments ?? data.leafAssessments,
             uncertaintyFactors: translatedParts.uncertaintyFactors ?? data.uncertaintyFactors,

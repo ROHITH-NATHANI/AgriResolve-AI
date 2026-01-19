@@ -1,11 +1,13 @@
 import { Agent } from './BaseAgent';
 import { routeGeminiCall } from '../../services/gemini';
+import { ArbitrationResult } from './ArbitrationAgent';
+import { HypothesisResult } from './HealthyHypothesisAgent';
 
 export class ExplanationAgent extends Agent {
     agentName = "ExplanationAgent";
     role = "Generates structured explanations. No decision authority.";
 
-    async run(arbitrationResult: any, healthyResult: any, diseaseResult: any, language: string = 'en'): Promise<{ summary: string, guidance: string[] }> {
+    async run(arbitrationResult: ArbitrationResult, healthyResult: HypothesisResult, diseaseResult: HypothesisResult, language: string = 'en'): Promise<{ summary: string, guidance: string[] }> {
         const prompt = `
       Generate a final explanation for the farmer based on the arbitration decision.
       
@@ -30,6 +32,6 @@ export class ExplanationAgent extends Agent {
     `;
 
         const response = await routeGeminiCall("EXPLANATION_POLISHED", prompt);
-        return this.parseJSON(response);
+        return this.parseJSON(response) as { summary: string, guidance: string[] };
     }
 }

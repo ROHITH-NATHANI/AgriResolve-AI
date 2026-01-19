@@ -8,6 +8,7 @@
     "prebuild": "node scripts/generate-og-preview.mjs",
     "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\""
   },

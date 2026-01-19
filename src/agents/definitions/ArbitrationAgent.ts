@@ -2,6 +2,8 @@ import { Agent } from './BaseAgent';
 import { routeGeminiCall } from '../../services/gemini';
 import { QualityReport } from './QualityEvaluator';
 
+import { HypothesisResult } from './HealthyHypothesisAgent';
+
 export enum DecisionState {
     LIKELY_HEALTHY = "Likely Healthy",
     POSSIBLE_ABNORMALITY = "Possibly Abnormal",
@@ -20,8 +22,8 @@ export class ArbitrationAgent extends Agent {
     role = "Resolves conflict between Healthy and Disease agents.";
 
     async run(
-        healthyResult: any,
-        diseaseResult: any,
+        healthyResult: HypothesisResult,
+        diseaseResult: HypothesisResult,
         quality: QualityReport,
         language: string = 'en'
     ): Promise<ArbitrationResult> {
@@ -49,6 +51,6 @@ export class ArbitrationAgent extends Agent {
     `;
 
         const response = await routeGeminiCall("ARBITRATION_SMART", prompt);
-        return this.parseJSON(response);
+        return this.parseJSON(response) as ArbitrationResult;
     }
 }

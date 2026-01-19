@@ -3,8 +3,10 @@ import { useFrame } from '@react-three/fiber'
 import { Points, PointMaterial } from '@react-three/drei'
 import * as random from 'maath/random/dist/maath-random.esm'
 
-export function HeroParticles(props: any) {
-    const ref = useRef<any>()
+import * as THREE from 'three'
+
+export function HeroParticles(props: Record<string, unknown>) {
+    const ref = useRef<THREE.Points>(null)
     const [sphere] = useState(() => random.inSphere(new Float32Array(6000), { radius: 1.5 }))
 
     useFrame((state, delta) => {

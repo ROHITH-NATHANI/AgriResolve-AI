@@ -20,7 +20,7 @@ export class QualityEvaluator extends Agent {
     agentName = "QualityEvaluator";
     role = "Validates input image quality for reliable analysis.";
 
-    async run(imageB64: string, existingEvidence?: VisionEvidence): Promise<QualityReport> {
+    async run(imageB64: string, _existingEvidence?: VisionEvidence): Promise<QualityReport> {
         const prompt = `
       Evaluate the quality of this image for agricultural disease diagnosis.
       Check for blur, lighting issues, and framing.
@@ -32,6 +32,6 @@ export class QualityEvaluator extends Agent {
     `;
 
         const response = await routeGeminiCall("VISION_FAST", prompt, imageB64);
-        return this.parseJSON(response);
+        return this.parseJSON(response) as QualityReport;
     }
 }

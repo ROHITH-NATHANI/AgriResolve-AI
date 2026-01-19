@@ -6,7 +6,12 @@ import { QualityReport } from './QualityEvaluator';
 export interface HypothesisResult {
     score: number; // 0.0 to 1.0 confidence
     arguments: string[];
-    evidence_refs: any;
+    evidence_refs: Record<string, unknown>;
+}
+
+interface HypothesisResponse {
+    score: number;
+    arguments: string[];
 }
 
 export class HealthyHypothesisAgent extends Agent {
@@ -32,7 +37,7 @@ export class HealthyHypothesisAgent extends Agent {
     `;
 
         const response = await routeGeminiCall("DEBATE_HIGH_THROUGHPUT", prompt);
-        const result = this.parseJSON(response);
+        const result = this.parseJSON(response) as HypothesisResponse;
 
         return {
             score: result.score,

@@ -1,11 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 
 const API_KEY =
-    import.meta.env.VITE_GEMINI_API_KEY ||
-    (typeof process !== 'undefined' ? (process as any)?.env?.GEMINI_API_KEY : undefined);
+    import.meta.env.GEMINI_API_TOKEN ||
+    (typeof process !== 'undefined' ? process.env?.GEMINI_API_TOKEN : undefined);
 
 if (!API_KEY) {
-    console.warn("Missing VITE_GEMINI_API_KEY in environment variables");
+    console.warn("Missing GEMINI_API_TOKEN in environment variables");
 }
 
 const ai = new GoogleGenAI({ apiKey: API_KEY || "" });
@@ -35,7 +35,7 @@ Output rules:
 - Be conservative with certainty; call out uncertainty clearly.
 `;
 
-const DEFAULT_CONFIG: any = {
+const DEFAULT_CONFIG = {
     temperature: 0.2,
     maxOutputTokens: 1400,
     // Library/API versions differ; keep these as plain strings for compatibility.
@@ -66,7 +66,7 @@ export async function routeGeminiCall(
     console.log(`[Gemini Service] Routing '${taskType}' to model: ${modelName}`);
     const model = ai.models.generateContent;
 
-    const parts: any[] = [{ text: prompt }];
+    const parts: ({ text: string } | { inlineData: { mimeType: string; data: string } })[] = [{ text: prompt }];
 
     if (imageB64) {
         const inline = toInlineImage(imageB64);
@@ -86,17 +86,22 @@ export async function routeGeminiCall(
             const response = await model({
                 model: modelName,
                 contents: [{ parts }],
-                systemInstruction: SAFETY_SYSTEM_INSTRUCTION,
-                config: DEFAULT_CONFIG,
+                config: {
+                    ...DEFAULT_CONFIG,
+                    systemInstruction: { parts: [{ text: SAFETY_SYSTEM_INSTRUCTION }] },
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } as any,
             });
 
             return response.text || "";
-        } catch (error: any) {
+        } catch (error: unknown) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const err = error as any;
             attempt++;
 
             // Analyze Error Types (New 2025 Strict Quotas)
-            const isRateLimit = error?.status === 429 || error?.code === 429 || error?.message?.includes('429');
-            const isModelNotFound = error?.status === 404 || error?.code === 404;
+            const isRateLimit = err?.status === 429 || err?.code === 429 || err?.message?.includes('429');
+            const isModelNotFound = err?.status === 404 || err?.code === 404;
 
             // Immediate Fail for 404 (Model Retired)
             if (isModelNotFound) {
