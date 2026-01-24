@@ -34,7 +34,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
       <div className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center bg-green-50 rounded-lg border border-green-100">
-            <span className="text-lg">🌱</span>
+            <img src="/logo.png" alt="AgriResolve AI Logo" className="w-6 h-6 object-contain" />
           </div>
           <h1 className="text-sm font-black text-gray-900 tracking-tight">AgriResolve AI</h1>
         </div>
@@ -65,8 +65,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
         <div className="p-5 border-b border-gray-100 bg-gradient-to-b from-white to-gray-50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 flex items-center justify-center bg-green-50 rounded-xl border border-green-100 shadow-sm">
-              <span className="text-xl">🌱</span>
-              {/* <img src="/logo.svg" alt="Logo" className="w-6 h-6" /> */}
+              <img src="/logo.png" alt="AgriResolve AI Logo" className="w-8 h-8 object-contain" />
             </div>
             <div>
               <h1 className="text-lg font-black text-gray-900 tracking-tight leading-tight">AgriResolve AI</h1>
