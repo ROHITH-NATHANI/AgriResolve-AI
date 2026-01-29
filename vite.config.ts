@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react()],
     define: {
-      'process.env.VITE_GEMINI_API_TOKEN': JSON.stringify(process.env.VITE_GEMINI_API_TOKEN || "AIzaSyDXRa-DMYo7_zETD0nE6ps2Bllx22PYXgI")
+      'process.env.VITE_GEMINI_API_TOKEN': JSON.stringify(process.env.VITE_GEMINI_API_TOKEN || "")
     },
     resolve: {
       alias: {
