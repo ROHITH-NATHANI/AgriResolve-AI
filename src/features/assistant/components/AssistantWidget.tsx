@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react';
-import { MessageSquare, X, Send, Bot, User, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Mic, MicOff, Volume2, VolumeX, Play, Square } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useAIChat } from '../hooks/useAIChat';
 import { AssessmentData } from '../../../types';
@@ -19,8 +19,17 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const { isListening, transcript, startListening, stopListening, hasSupport: hasSTT } = useSpeechRecognition();
-    const { speak, cancel: stopSpeaking, hasSupport: hasTTS } = useTextToSpeech();
+    const {
+        isListening,
+        transcript,
+        interimTranscript,
+        error: sttError,
+        startListening,
+        stopListening,
+        clearTranscript,
+        hasSupport: hasSTT
+    } = useSpeechRecognition();
+    const { speak, cancel: stopSpeaking, hasSupport: hasTTS, isSpeaking } = useTextToSpeech();
     const [isTtsMuted, setIsTtsMuted] = useState(false);
 
     const {
@@ -58,14 +67,33 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
         }
     };
 
+    const lastAiMessage = useMemo(() => {
+        const lastMsg = [...messages].reverse().find((m) => m.sender === 'ai');
+        return lastMsg?.text || '';
+    }, [messages]);
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') handleSend();
     };
 
     useEffect(() => {
-        if (!transcript || !inputRef.current) return;
-        inputRef.current.value = transcript;
-    }, [transcript]);
+        if (!inputRef.current) return;
+        if (interimTranscript) {
+            inputRef.current.value = interimTranscript;
+            return;
+        }
+        if (transcript) {
+            inputRef.current.value = transcript;
+        }
+    }, [transcript, interimTranscript]);
+
+    useEffect(() => {
+        if (!transcript || isListening || isLoading) return;
+        stopSpeaking();
+        sendMessage(transcript);
+        if (inputRef.current) inputRef.current.value = '';
+        clearTranscript();
+    }, [transcript, isListening, isLoading, clearTranscript, sendMessage, stopSpeaking]);
 
     useEffect(() => {
         if (!hasTTS || isTtsMuted) return;
@@ -76,10 +104,6 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
 
         speak(lastMsg.text, speechLang);
     }, [messages, isLoading, hasTTS, isTtsMuted, speak, speechLang]);
-
-    useEffect(() => {
-        if (!isOpen) stopSpeaking();
-    }, [isOpen, stopSpeaking]);
 
     useEffect(() => {
         if (!isOpen) stopSpeaking();
@@ -107,6 +131,29 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!hasTTS) return;
+                                        if (isSpeaking) {
+                                            stopSpeaking();
+                                            return;
+                                        }
+                                        if (!lastAiMessage) return;
+                                        if (isTtsMuted) setIsTtsMuted(false);
+                                        speak(lastAiMessage, speechLang);
+                                    }}
+                                    className="p-1 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                                    disabled={!hasTTS || !lastAiMessage}
+                                    aria-label={isSpeaking ? 'Stop voice output' : 'Play last response'}
+                                    title={isSpeaking ? 'Stop' : 'Play'}
+                                >
+                                    {isSpeaking ? (
+                                        <Square className="w-5 h-5 text-white/80" />
+                                    ) : (
+                                        <Play className="w-5 h-5 text-white/80" />
+                                    )}
+                                </button>
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -229,6 +276,13 @@ export const AssistantWidget: React.FC<AssistantWidgetProps> = ({ data }) => {
                                 <Send className="w-4 h-4" />
                             </button>
                         </div>
+                        {hasSTT && (isListening || sttError) && (
+                            <div className={`mt-2 text-[10px] font-medium ${sttError ? 'text-red-600' : 'text-gray-500'}`}>
+                                {sttError
+                                    ? `Voice input unavailable (${sttError}).`
+                                    : 'Listening… speak clearly and pause to send.'}
+                            </div>
+                        )}
                         <div className="text-[10px] text-center text-gray-400 mt-2 font-medium">
                             {t('disclaimer')}
                         </div>

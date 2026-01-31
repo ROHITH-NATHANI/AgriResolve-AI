@@ -12,7 +12,7 @@ import leafFragment from '../shaders/leafFragment.glsl?raw';
 
 // Extend Three elements if necessary (though we use primitives mostly)
 
-const TEXTURE_SIZE = 20; // 20x20 = 400 leaves (Minimalist)
+const TEXTURE_SIZE = 28; // 28x28 = 784 leaves (smoother flow)
 
 export const FallingLeavesGPGPU: React.FC = () => {
     const { gl } = useThree();
@@ -70,11 +70,11 @@ export const FallingLeavesGPGPU: React.FC = () => {
         gpu.setVariableDependencies(posVariable, [posVariable, velVariable]);
 
         // 4. Uniforms for Simulation Shaders
-        velVariable.material.uniforms = {
+            velVariable.material.uniforms = {
             uTime: { value: 0 },
             uDelta: { value: 0 },
-            uSpeed: { value: 0.06 }, // calmer fall speed
-            uCurlFreq: { value: 0.12 }, // less turbulent curl noise
+            uSpeed: { value: 0.05 }, // calmer fall speed
+            uCurlFreq: { value: 0.10 }, // smoother curl noise
             uSeed: { value: new THREE.Vector4(Math.random(), Math.random(), Math.random(), Math.random()) },
             resolution: { value: new THREE.Vector2(TEXTURE_SIZE, TEXTURE_SIZE) }
         };
@@ -82,8 +82,8 @@ export const FallingLeavesGPGPU: React.FC = () => {
         posVariable.material.uniforms = {
             uTime: { value: 0 },
             uDelta: { value: 0 },
-            // Visual Bounds: Top 6, Bottom -6, Left -8, Right 8
-            uBounds: { value: new THREE.Vector4(6, -6, -8, 8) },
+            // Visual Bounds: Top 7, Bottom -7, Left -10, Right 10
+            uBounds: { value: new THREE.Vector4(7, -7, -10, 10) },
             resolution: { value: new THREE.Vector2(TEXTURE_SIZE, TEXTURE_SIZE) }
         };
 

@@ -48,7 +48,15 @@ void main() {
     mat4 rot = rotationMatrix(axis, angle);
     
     // Apply rotation to the simulated vertex position (local space)
-    vec4 localPos = rot * vec4(position, 1.0);
+    // Per-leaf scale variation (seeded by pos.w)
+    float scale = 0.7 + posData.w * 0.7;
+    vec3 scaled = position * scale;
+
+    // Subtle leaf curvature for realism
+    float bend = sin((uv.y + uTime * 0.2) * 3.1415) * 0.05;
+    scaled.z += bend * (0.5 - abs(uv.x - 0.5));
+
+    vec4 localPos = rot * vec4(scaled, 1.0);
     
     // Move to world simulation position
     vec4 worldPosition = modelMatrix * vec4(pos + localPos.xyz, 1.0);
@@ -57,8 +65,8 @@ void main() {
     vDepth = -worldPosition.z;
     
     // Variant color (greenshift) based on position
-    float variant = sin(pos.x * 0.5 + pos.y * 0.2);
-    vColor = mix(vec3(0.1, 0.6, 0.2), vec3(0.3, 0.8, 0.3), variant * 0.5 + 0.5);
+    float variant = sin(pos.x * 0.4 + pos.y * 0.25 + posData.w * 6.283);
+    vColor = mix(vec3(0.12, 0.55, 0.22), vec3(0.32, 0.78, 0.28), variant * 0.5 + 0.5);
 
     gl_Position = projectionMatrix * viewMatrix * worldPosition;
 }

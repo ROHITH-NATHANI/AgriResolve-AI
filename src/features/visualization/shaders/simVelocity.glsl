@@ -105,19 +105,23 @@ void main() {
   vec3 domainOffset = vec3(uSeed.x, uSeed.y, uSeed.z) * 37.0 + vec3(id * 19.1, id * 7.7, id * 13.3);
   vec3 curl = curlNoise((pos.xyz + domainOffset) * uCurlFreq + uTime * 0.08);
     
-    // Gravity
-    vec3 gravity = vec3(0.0, -1.0, 0.0);
+    // Gravity (soft)
+    vec3 gravity = vec3(0.0, -0.65, 0.0);
     
   // Wind push (combine curl with global wind direction)
   // Add tiny per-leaf side drift so the flow doesn't look "tiley".
-  vec3 drift = vec3(sin(uTime * 0.35 + id * 6.283) * 0.08, 0.0, cos(uTime * 0.28 + id * 6.283) * 0.06);
-  vec3 wind = (curl + drift) * 0.55;
+  vec3 drift = vec3(sin(uTime * 0.22 + id * 6.283) * 0.14, 0.0, cos(uTime * 0.18 + id * 6.283) * 0.10);
+  vec3 wind = (curl + drift) * 0.75;
+
+  // Global gentle flow
+  vec3 flowDir = normalize(vec3(1.0, 0.0, 0.35));
+  vec3 flow = flowDir * (uSpeed * 0.25);
     
     // Target velocity: Gravity + Wind
-  vec3 targetVel = gravity * uSpeed + wind * (uSpeed * 0.35);
+  vec3 targetVel = gravity * uSpeed + wind * (uSpeed * 0.45) + flow;
     
     // Apply Drag / Inertia (Lerp towards target)
-  vec3 newVel = mix(vel.xyz, targetVel, 0.06); // more inertia, smoother motion
+  vec3 newVel = mix(vel.xyz, targetVel, 0.08); // smoother motion
 
     gl_FragColor = vec4(newVel, 1.0);
 }

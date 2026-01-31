@@ -27,7 +27,7 @@ const Particles = (props: Record<string, unknown>) => {
                     size={0.003}
                     sizeAttenuation={true}
                     depthWrite={false}
-                    opacity={0.6}
+                    opacity={0.18}
                 />
             </Points>
         </group>
@@ -55,7 +55,7 @@ const Connections = () => {
                     size={0.005}
                     sizeAttenuation={true}
                     depthWrite={false}
-                    opacity={0.4}
+                    opacity={0.14}
                 />
             </Points>
         </group>

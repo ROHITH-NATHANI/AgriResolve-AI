@@ -8,6 +8,7 @@ import { CropAnalysisRecord } from './features/history/types';
 import { AgentVisualizer } from './features/analysis/components/AgentVisualizer';
 import { ScanOverlay } from './features/analysis/components/ScanOverlay';
 import { usePersistentHistory } from './features/history/hooks/usePersistentHistory';
+import { CompareView } from './features/history/components/CompareView';
 import { AssistantWidget } from './features/assistant/components/AssistantWidget';
 import { BioNetworkScene } from './features/visualization/components/BioNetworkScene';
 import { Upload, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
@@ -30,6 +31,10 @@ const LANGUAGES = [
 ];
 
 import { translateAssessmentData } from './services/TranslationService';
+import type { VisionEvidence } from './agents/definitions/VisionEvidenceAgent';
+import type { QualityReport } from './agents/definitions/QualityEvaluator';
+import type { HypothesisResult } from './agents/definitions/HealthyHypothesisAgent';
+import type { ArbitrationResult } from './agents/definitions/ArbitrationAgent';
 
 const App: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -50,6 +55,108 @@ const App: React.FC = () => {
   const [baseData, setBaseData] = useState<AssessmentData | null>(null);
 
   const { history, addRecord } = usePersistentHistory();
+
+  const isDemoMode = React.useMemo(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.has('demo') || params.has('judge') || import.meta.env.VITE_DEMO_MODE === 'true';
+    } catch {
+      return import.meta.env.VITE_DEMO_MODE === 'true';
+    }
+  }, []);
+
+  const buildDemoAssessment = React.useCallback((img: string): AssessmentData => {
+    const visionEvidence: VisionEvidence = {
+      lesion_color: 'brown/yellow',
+      lesion_shape: 'irregular patches',
+      texture: 'slightly mottled',
+      distribution: 'scattered, mostly mid-leaf',
+      anomalies_detected: ['small brown specks', 'yellowing around spots', 'mild mottling'],
+      raw_analysis:
+        'Demo-mode analysis: spotted discoloration with mild chlorosis. This is a deterministic sample output for reliable judging.',
+      leaf_regions: [
+        { id: 'Leaf A', x: 0.05, y: 0.12, w: 0.62, h: 0.78, confidence: 0.82 },
+        { id: 'Leaf B', x: 0.60, y: 0.18, w: 0.35, h: 0.70, confidence: 0.76 },
+      ],
+      attention_boxes: [
+        { x: 0.22, y: 0.32, w: 0.20, h: 0.22, label: 'spots', confidence: 0.78 },
+        { x: 0.68, y: 0.45, w: 0.18, h: 0.26, label: 'necrosis', confidence: 0.74 },
+      ],
+    };
+
+    const quality: QualityReport = {
+      score: 0.86,
+      flags: ['OK'],
+      reasoning: 'Demo-mode: image appears clear, leaf occupies most of frame.',
+    } as unknown as QualityReport;
+
+    const healthyResult: HypothesisResult = {
+      score: 0.38,
+      arguments: [
+        'Patterns could be from minor nutrient stress or recent handling damage.',
+        'No strong fungal texture is visible in the highlighted areas.',
+      ],
+      evidence_refs: { demo: true },
+    };
+
+    const diseaseResult: HypothesisResult = {
+      score: 0.62,
+      arguments: [
+        'Spotting with surrounding yellowing can be consistent with early-stage leaf stress/disease.',
+        'Scattered lesions suggest a developing issue rather than uniform nutrient deficiency.',
+      ],
+      evidence_refs: { demo: true },
+    };
+
+    const arbitrationResult: ArbitrationResult = {
+      decision: 'Possibly Abnormal',
+      confidence: 0.64,
+      rationale: [
+        'Evidence suggests mild abnormal spotting; severity appears low.',
+        'Because this is a single photo, confirm with follow-up scans over 48–72 hours.',
+      ],
+    };
+
+    return {
+      imageUrl: img,
+      visionEvidence,
+      quality,
+      healthyResult,
+      diseaseResult,
+      arbitrationResult,
+      explanation: {
+        summary:
+          'Demo mode: This leaf looks mildly abnormal. The safest next step is monitoring and capturing a clearer follow-up photo under good daylight.',
+        guidance: [
+          'Take 2 more photos over the next 2–3 days under daylight (same plant).',
+          'If spread increases or multiple plants show symptoms, contact a local extension officer/agronomist.',
+          'Avoid applying chemicals based on app output; follow local guidance and labels.',
+        ],
+      },
+      leafAssessments: [
+        {
+          id: 'Leaf A',
+          observations: ['Small scattered brown specks', 'Mild yellowing around specks'],
+          condition: 'Mild abnormality (uncertain)',
+          confidence: 0.64,
+          notes: 'Demo mode sample leaf assessment.',
+        },
+        {
+          id: 'Leaf B',
+          observations: ['Larger necrotic patches', 'Stronger yellowing around lesions'],
+          condition: 'Mild abnormality (uncertain)',
+          confidence: 0.60,
+          notes: 'Demo mode sample leaf assessment (second leaf).',
+        },
+      ],
+      uncertaintyFactors: {
+        lowImageQuality: false,
+        multipleLeaves: true,
+        visuallySimilarConditions: true,
+        other: ['Demo mode uses deterministic outputs for reliable judging.'],
+      },
+    };
+  }, []);
 
   const loadHistoryRecord = async (record: CropAnalysisRecord) => {
     setError(null);
@@ -166,15 +273,26 @@ const App: React.FC = () => {
     setAssessmentCache({}); // Reset cache for new image
 
     try {
-      // Always generate a stable English base result, then translate for the UI language.
-      const base = await runAgenticPipeline(img, (newStatus) => {
-        setStatus(newStatus);
-      }, 'en');
+      // Demo/Judge mode: avoid external calls so the demo never breaks.
+      // Use deterministic sample outputs (still driven by the user's image for UI).
+      const base = isDemoMode
+        ? (() => {
+            // preserve the stage animations for the "council" feel
+            setStatus(AssessmentStatus.EVALUATING);
+            return buildDemoAssessment(img);
+          })()
+        : await runAgenticPipeline(
+            img,
+            (newStatus) => {
+              setStatus(newStatus);
+            },
+            'en'
+          );
 
       setBaseData(base);
 
       const currentLang = i18n.language;
-      const view = currentLang === 'en' ? base : await translateAssessmentData(base, currentLang);
+      const view = isDemoMode || currentLang === 'en' ? base : await translateAssessmentData(base, currentLang);
 
       setData(view);
 
@@ -241,8 +359,15 @@ const App: React.FC = () => {
           </p>
         </div>
 
-        {/* Language Selector */}
-        <div className="flex items-center gap-2 bg-white/30 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/40 shadow-sm hover:bg-white/40 transition-colors">
+        <div className="flex items-center gap-2">
+          {isDemoMode && (
+            <div className="bg-yellow-50/90 backdrop-blur-xl px-3 py-1.5 rounded-full border border-yellow-200 shadow-sm text-xs font-bold text-yellow-900">
+              DEMO
+            </div>
+          )}
+
+          {/* Language Selector */}
+          <div className="flex items-center gap-2 bg-white/30 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/40 shadow-sm hover:bg-white/40 transition-colors">
           <Globe className="w-4 h-4 text-gray-700" />
           <select
             value={i18n.language}
@@ -253,6 +378,7 @@ const App: React.FC = () => {
               <option key={lang.code} value={lang.code}>{lang.label}</option>
             ))}
           </select>
+          </div>
         </div>
       </div>
 
@@ -435,13 +561,11 @@ const App: React.FC = () => {
               <>
                 {activeTab === 'results' ? (
                   <div className="bg-white/60 backdrop-blur-xl rounded-xl shadow-lg border border-white/40 p-6">
-                    <FinalResults data={data} sourceImage={image} />
+                    <FinalResults data={data} sourceImage={image} isDemoMode={isDemoMode} />
                   </div>
                 ) : (
                   <div className="bg-white/60 backdrop-blur-xl rounded-xl shadow-lg border border-white/40 p-6">
-                    <div className="text-sm text-gray-700 font-medium">
-                      Compare view is coming next. You&apos;ll be able to pick 2 history scans and see what&apos;s changed.
-                    </div>
+                    <CompareView history={history} />
                   </div>
                 )}
               </>

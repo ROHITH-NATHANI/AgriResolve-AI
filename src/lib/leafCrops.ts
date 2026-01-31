@@ -24,14 +24,45 @@ function expandBBox(
   return { x, y, w: Math.max(1, x2 - x), h: Math.max(1, y2 - y) };
 }
 
-function isLikelyGreen(r: number, g: number, b: number): boolean {
-  // Simple heuristic: green channel dominates and is bright enough.
-  if (g < 50) return false;
-  if (g < r + 20) return false;
-  if (g < b + 15) return false;
-  // Avoid very dark pixels
-  if (r + g + b < 120) return false;
-  return true;
+function rgbToHsv(r: number, g: number, b: number) {
+  const rr = r / 255;
+  const gg = g / 255;
+  const bb = b / 255;
+  const max = Math.max(rr, gg, bb);
+  const min = Math.min(rr, gg, bb);
+  const d = max - min;
+
+  let h = 0;
+  if (d !== 0) {
+    if (max === rr) h = ((gg - bb) / d) % 6;
+    else if (max === gg) h = (bb - rr) / d + 2;
+    else h = (rr - gg) / d + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  return { h, s, v };
+}
+
+function isLikelyLeafPixel(r: number, g: number, b: number): boolean {
+  // Leaf pixels can be green OR yellow/brown (disease), so green-only masks fail.
+  // Use HSV saturation + hue range to catch common leaf colors while rejecting grayish background.
+  const { h, s, v } = rgbToHsv(r, g, b);
+  if (v < 0.10) return false; // too dark
+  if (s < 0.14) return false; // too gray / background
+
+  // Hue ranges (degrees):
+  // - Greens: ~70..170
+  // - Yellow: ~35..70
+  // - Brown/orange-ish: ~15..35 (still often leaf tissue)
+  const inLeafHue = (h >= 15 && h <= 170);
+  if (inLeafHue) return true;
+
+  // Fallback: very saturated pixels with mid brightness can still be leaf even if hue drifts.
+  if (s >= 0.35 && v >= 0.20) return true;
+
+  return false;
 }
 
 async function loadImage(src: string): Promise<HTMLImageElement> {
@@ -74,7 +105,7 @@ export async function computeLeafCrops(
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
-      mask[y * targetW + x] = isLikelyGreen(r, g, b) ? 1 : 0;
+      mask[y * targetW + x] = isLikelyLeafPixel(r, g, b) ? 1 : 0;
     }
   }
 
@@ -134,7 +165,7 @@ export async function computeLeafCrops(
       }
 
       // Filter tiny blobs
-      const minArea = Math.max(200, Math.round((targetW * targetH) * 0.01));
+      const minArea = Math.max(200, Math.round((targetW * targetH) * 0.005));
       if (area >= minArea) {
         components.push({ area, minX, minY, maxX, maxY });
       }
@@ -163,7 +194,7 @@ export async function computeLeafCrops(
       h: Math.round(bboxSmall.h / scale),
     };
 
-    const expanded = expandBBox(bboxSrc, 1.2, srcW, srcH);
+    const expanded = expandBBox(bboxSrc, 1.08, srcW, srcH);
 
     // Create a small thumbnail canvas (keep aspect)
     const maxThumbW = 320;

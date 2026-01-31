@@ -57,6 +57,23 @@ export const useTextToSpeech = () => {
     }
   }, [hasSupport]);
 
+  const buildChunks = (text: string) => {
+    const maxLen = 220;
+    const sentences = text.split(/(?<=[.!?])\s+/g).filter(Boolean);
+    const chunks: string[] = [];
+    let buf = '';
+    for (const s of sentences) {
+      if ((buf + ' ' + s).trim().length > maxLen) {
+        if (buf.trim()) chunks.push(buf.trim());
+        buf = s;
+      } else {
+        buf = `${buf} ${s}`.trim();
+      }
+    }
+    if (buf.trim()) chunks.push(buf.trim());
+    return chunks.length ? chunks : [text];
+  };
+
   const speak = useCallback(
     (text: string, lang: string = 'en-US') => {
       if (!hasSupport) return;
@@ -67,22 +84,49 @@ export const useTextToSpeech = () => {
       const cleanText = stripMarkdownForSpeech(text);
       if (!cleanText) return;
 
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = lang;
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-
       const preferredVoice =
         voices.find((v) => v.lang?.toLowerCase().startsWith(lang.toLowerCase()) && v.name.includes('Google')) ||
         voices.find((v) => v.lang?.toLowerCase().startsWith(lang.toLowerCase()));
 
-      if (preferredVoice) utterance.voice = preferredVoice;
+      const chunks = buildChunks(cleanText);
+      let idx = 0;
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      const speakNext = () => {
+        if (idx >= chunks.length) {
+          setIsSpeaking(false);
+          return;
+        }
 
-      window.speechSynthesis.speak(utterance);
+        const utterance = new SpeechSynthesisUtterance(chunks[idx]);
+        utterance.lang = lang;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        if (preferredVoice) utterance.voice = preferredVoice;
+
+        utterance.onstart = () => {
+          setIsSpeaking(true);
+          try {
+            if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+          } catch {
+            // ignore
+          }
+        };
+
+        utterance.onend = () => {
+          idx += 1;
+          speakNext();
+        };
+
+        utterance.onerror = () => {
+          idx += 1;
+          speakNext();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      speakNext();
     },
     [hasSupport, voices]
   );

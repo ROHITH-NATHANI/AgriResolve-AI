@@ -30,7 +30,8 @@ export async function translateAssessmentData(
        - healthyResult.arguments, diseaseResult.arguments
        - arbitrationResult.rationale
        - subjectValidation.message
-       - visionEvidence.findings (but NOT visionEvidence.regions)
+             - visionEvidence.lesion_color, visionEvidence.lesion_shape, visionEvidence.texture, visionEvidence.distribution, visionEvidence.anomalies_detected, visionEvidence.raw_analysis
+                 (but NOT visionEvidence.leaf_regions or visionEvidence.attention_boxes)
        - uncertaintyFactors.other
        - leafAssessments[].observations, leafAssessments[].notes, leafAssessments[].condition
        - quality.issues

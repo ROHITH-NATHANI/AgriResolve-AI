@@ -18,12 +18,12 @@ void main() {
     
     // Boundary check (Bottom)
     if (newPos.y < uBounds.y) { // Below bottom edge
-        newPos.y = uBounds.x; // Respawn at top
+        newPos.y = uBounds.x + rand(vec2(uv.x, uTime)) * 1.5; // Respawn near top with variation
         
         // Randomize X and Z
         float seed = uTime + uv.x;
         float rX = (rand(vec2(seed, uv.y)) - 0.5) * (uBounds.w - uBounds.z); // Scale to width
-        float rZ = (rand(vec2(seed * 0.5, uv.y)) - 0.5) * 6.0; // Depth spread
+        float rZ = (rand(vec2(seed * 0.5, uv.y)) - 0.5) * 10.0; // Depth spread
         
         newPos.x = rX;
         newPos.z = rZ;

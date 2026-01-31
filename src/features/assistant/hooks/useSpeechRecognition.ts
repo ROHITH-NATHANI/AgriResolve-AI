@@ -16,6 +16,7 @@ interface SpeechRecognitionLike extends EventTarget {
   start: () => void;
   stop: () => void;
   abort: () => void;
+  onstart: (() => void) | null;
   onresult: ((event: SpeechRecognitionResultEventLike) => void) | null;
   onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
   onend: (() => void) | null;
@@ -32,6 +33,8 @@ export const useSpeechRecognition = () => {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const hasSupport = useMemo(() => {
     if (typeof window === 'undefined') return false;
@@ -51,25 +54,36 @@ export const useSpeechRecognition = () => {
 
     instance.onresult = (event) => {
       let finalTranscript = '';
+      let interim = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        }
+        const part = event.results[i][0]?.transcript ?? '';
+        if (event.results[i].isFinal) finalTranscript += part;
+        else interim += part;
       }
 
       if (finalTranscript) {
         setTranscript(finalTranscript.trim());
       }
+
+      if (interim) setInterimTranscript(interim.trim());
     };
 
     instance.onerror = (event) => {
       // Most browsers provide event.error (e.g., "not-allowed", "network")
-      console.error('Speech recognition error', event?.error);
+      const err = event?.error || 'unknown';
+      console.error('Speech recognition error', err);
+      setError(err);
       setIsListening(false);
+    };
+
+    instance.onstart = () => {
+      setError(null);
+      setInterimTranscript('');
     };
 
     instance.onend = () => {
       setIsListening(false);
+      setInterimTranscript('');
     };
 
     recognitionRef.current = instance;
@@ -92,6 +106,8 @@ export const useSpeechRecognition = () => {
     if (!recognition) return;
 
     setTranscript('');
+    setInterimTranscript('');
+    setError(null);
 
     try {
       recognition.lang = lang;
@@ -100,6 +116,7 @@ export const useSpeechRecognition = () => {
     } catch (e) {
       // Calling start() twice throws in many implementations.
       console.error('Speech start error', e);
+      setError('start_failed');
       setIsListening(false);
     }
   }, []);
@@ -115,5 +132,10 @@ export const useSpeechRecognition = () => {
     }
   }, []);
 
-  return { isListening, transcript, startListening, stopListening, hasSupport };
+  const clearTranscript = useCallback(() => {
+    setTranscript('');
+    setInterimTranscript('');
+  }, []);
+
+  return { isListening, transcript, interimTranscript, error, startListening, stopListening, clearTranscript, hasSupport };
 };

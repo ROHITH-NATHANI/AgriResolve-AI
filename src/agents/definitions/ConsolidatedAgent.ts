@@ -47,6 +47,37 @@ function asStringArray(value: unknown, fallback: string[] = []): string[] {
 
 function parseVisionEvidence(value: unknown): VisionEvidence | null {
   if (!isRecord(value)) return null;
+
+  const maybeLeafRegions = Array.isArray(value.leaf_regions) ? (value.leaf_regions as unknown[]) : null;
+  const leaf_regions = maybeLeafRegions
+    ? maybeLeafRegions
+        .filter(isRecord)
+        .map((r) => ({
+          id: asString(r.id, 'Leaf'),
+          x: asNumber(r.x, 0),
+          y: asNumber(r.y, 0),
+          w: asNumber(r.w, 0),
+          h: asNumber(r.h, 0),
+          confidence: typeof r.confidence === 'number' ? r.confidence : undefined,
+        }))
+        .filter((b) => typeof b.id === 'string' && b.id.length > 0 && b.w > 0 && b.h > 0)
+    : undefined;
+
+  const maybeBoxes = Array.isArray(value.attention_boxes) ? (value.attention_boxes as unknown[]) : null;
+  const attention_boxes = maybeBoxes
+    ? maybeBoxes
+        .filter(isRecord)
+        .map((box) => ({
+          x: asNumber(box.x, 0),
+          y: asNumber(box.y, 0),
+          w: asNumber(box.w, 0),
+          h: asNumber(box.h, 0),
+          label: typeof box.label === 'string' ? box.label : undefined,
+          confidence: typeof box.confidence === 'number' ? box.confidence : undefined,
+        }))
+        .filter((b) => b.w > 0 && b.h > 0)
+    : undefined;
+
   return {
     lesion_color: asString(value.lesion_color, 'unknown'),
     lesion_shape: asString(value.lesion_shape, 'unknown'),
@@ -54,6 +85,8 @@ function parseVisionEvidence(value: unknown): VisionEvidence | null {
     distribution: asString(value.distribution, 'unknown'),
     anomalies_detected: asStringArray(value.anomalies_detected, []),
     raw_analysis: asString(value.raw_analysis, 'No analysis'),
+    leaf_regions,
+    attention_boxes,
   };
 }
 
@@ -123,7 +156,10 @@ export class ConsolidatedAgent {
                 "texture": "string",
                 "distribution": "string",
                 "anomalies_detected": ["visual anomaly 1", "visual anomaly 2"],
-                "raw_analysis": "brief technical description"
+                "raw_analysis": "brief technical description",
+                "leaf_regions": [
+                  { "id": "Leaf A", "x": 0.1, "y": 0.2, "w": 0.4, "h": 0.6, "confidence": 0.8 }
+                ]
               },
               "leafAssessments": [
                 {
