@@ -217,7 +217,12 @@ describe('Property: WebRTC Communication Establishment', () => {
         }),
         async (testConfig) => {
           // Test ICE candidate validation logic directly
-          const mockCandidates = [];
+          interface MockCandidate {
+            candidate: string;
+            sdpMLineIndex: number;
+            sdpMid: string;
+          }
+          const mockCandidates: MockCandidate[] = [];
 
           for (let i = 0; i < testConfig.candidateCount; i++) {
             const candidateType = testConfig.candidateTypes[i % testConfig.candidateTypes.length];
@@ -242,7 +247,7 @@ describe('Property: WebRTC Communication Establishment', () => {
           });
 
           // Test that candidates contain expected types (only check for types that were actually generated)
-          const candidateStrings = mockCandidates.map(c => c.candidate);
+          const candidateStrings = mockCandidates.map((c: MockCandidate) => c.candidate);
           const actualTypes = new Set<string>();
 
           candidateStrings.forEach(candidateString => {

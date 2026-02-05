@@ -5,7 +5,7 @@
  * Requirements: 13.2, 13.3
  */
 
-import { ChemicalSafetyChecker } from '../chemicalSafetyChecker';
+import { ChemicalSafetyChecker } from '../chemicalSafetyChecker.js';
 
 describe('ChemicalSafetyChecker - Unit Tests', () => {
   const checker = new ChemicalSafetyChecker();
@@ -74,7 +74,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
   describe('Paraquat synonym detection', () => {
     test('detects "paraquat" as banned chemical', () => {
       const result = checker.checkInput('use paraquat for weed control');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals.length).toBe(1);
       expect(result.detectedChemicals[0].name).toBe('paraquat');
@@ -83,7 +83,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
 
     test('detects "gramoxone" as paraquat synonym', () => {
       const result = checker.checkInput('use gramoxone for weed control');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals.length).toBe(1);
       expect(result.detectedChemicals[0].variations).toContain('gramoxone');
@@ -92,7 +92,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
 
     test('detects "para-quat" as paraquat variation', () => {
       const result = checker.checkInput('use para-quat for weed control');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals[0].variations).toContain('para-quat');
     });
@@ -104,7 +104,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
   describe('Chlorpyrifos variation detection', () => {
     test('detects "chlorpyrifos" as restricted chemical', () => {
       const result = checker.checkInput('apply chlorpyrifos to crops');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals[0].name).toBe('chlorpyrifos');
       expect(result.detectedChemicals[0].restrictionLevel).toBe('restricted');
@@ -112,28 +112,28 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
 
     test('detects "dursban" as chlorpyrifos synonym', () => {
       const result = checker.checkInput('apply dursban to crops');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals[0].variations).toContain('dursban');
     });
 
     test('detects "lorsban" as chlorpyrifos synonym', () => {
       const result = checker.checkInput('apply lorsban to crops');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals[0].variations).toContain('lorsban');
     });
 
     test('detects "chlorpyriphos" as misspelling', () => {
       const result = checker.checkInput('apply chlorpyriphos to crops');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals[0].variations).toContain('chlorpyriphos');
     });
 
     test('detects "chloropyrifos" as misspelling', () => {
       const result = checker.checkInput('apply chloropyrifos to crops');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals[0].variations).toContain('chloropyrifos');
     });
@@ -145,7 +145,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
   describe('Disclaimer', () => {
     test('includes disclaimer when chemicals detected', () => {
       const result = checker.checkInput('use paraquat');
-      
+
       expect(result.disclaimer).toBeDefined();
       expect(result.disclaimer).toContain('incomplete');
       expect(result.disclaimer).toContain('consult');
@@ -153,7 +153,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
 
     test('includes disclaimer even when no chemicals detected', () => {
       const result = checker.checkInput('water the plants');
-      
+
       expect(result.disclaimer).toBeDefined();
       expect(result.disclaimer).toContain('incomplete');
     });
@@ -165,21 +165,21 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
   describe('Warnings', () => {
     test('generates warning for banned chemical', () => {
       const result = checker.checkInput('use paraquat');
-      
+
       expect(result.warnings.length).toBeGreaterThan(0);
       expect(result.warnings[0]).toContain('banned');
     });
 
     test('generates warning for restricted chemical', () => {
       const result = checker.checkInput('use chlorpyrifos');
-      
+
       expect(result.warnings.length).toBeGreaterThan(0);
       expect(result.warnings[0]).toContain('restrictions');
     });
 
     test('generates no warnings for safe text', () => {
       const result = checker.checkInput('water the plants daily');
-      
+
       expect(result.warnings.length).toBe(0);
     });
   });
@@ -190,7 +190,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
   describe('Multiple chemical detection', () => {
     test('detects multiple chemicals in same text', () => {
       const result = checker.checkInput('use paraquat and chlorpyrifos together');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals.length).toBe(2);
       expect(result.warnings.length).toBe(2);
@@ -198,7 +198,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
 
     test('detects chemicals with units', () => {
       const result = checker.checkInput('apply 50 ml of paraquat and 100 g of chlorpyrifos');
-      
+
       expect(result.hasRestrictedChemicals).toBe(true);
       expect(result.detectedChemicals.length).toBe(2);
       expect(checker.hasVolumeUnits('apply 50 ml of paraquat')).toBe(true);
@@ -233,7 +233,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
   describe('detectVariations method', () => {
     test('returns all variations for known chemical', () => {
       const variations = checker.detectVariations('paraquat');
-      
+
       expect(variations).toContain('paraquat');
       expect(variations).toContain('gramoxone');
       expect(variations.length).toBeGreaterThan(1);
@@ -241,7 +241,7 @@ describe('ChemicalSafetyChecker - Unit Tests', () => {
 
     test('returns variations for unknown chemical', () => {
       const variations = checker.detectVariations('unknownchemical');
-      
+
       expect(variations).toContain('unknownchemical');
       expect(variations.length).toBeGreaterThan(0);
     });

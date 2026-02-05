@@ -33,7 +33,7 @@ CLIENT_URL=http://localhost:5173
 SESSION_SECRET=change-this-secret-in-production-use-a-long-random-string
 
 # Gemini API Configuration (server-side)
-GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_SERVICE_TOKEN=your_gemini_api_key_here
 
 # JWT Configuration (for authentication)
 JWT_SECRET=your-secret-key-change-in-production
@@ -148,7 +148,7 @@ This implementation addresses the following requirements from the Agricultural A
 
 1. **Update Environment Variables**:
    - Add `SESSION_SECRET` with a strong random string
-   - Add `GEMINI_API_KEY` for server-side use
+   - Add `GEMINI_SERVICE_TOKEN` for server-side use
    - Set `HOST` appropriately for production
    - Verify `FRONTEND_URL` matches your frontend deployment
 

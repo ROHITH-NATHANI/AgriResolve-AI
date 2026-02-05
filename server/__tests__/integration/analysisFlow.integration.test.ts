@@ -8,9 +8,10 @@
 import type { Express } from 'express';
 
 // Use require for express/supertest to avoid Jest ESM/CommonJS interop issues
-const express = require('express');
-const request = require('supertest');
-const session = require('express-session');
+// Use require for express/supertest to avoid Jest ESM/CommonJS interop issues
+import express = require('express');
+import request = require('supertest');
+import session = require('express-session');
 
 // External dependencies are mocked to keep tests deterministic and offline.
 const mockGeminiGenerateContent = jest.fn();
@@ -45,17 +46,17 @@ jest.mock('../../services/weatherService.js', () => ({
   ])
 }));
 
-import { analysisRouter } from '../../routes/analysis';
-import { healthRouter } from '../../routes/health';
-import { authMiddleware } from '../../middleware/auth';
-import { hourlyRateLimiter, shortTermRateLimiter, rateLimitStatus } from '../../middleware/rateLimiter';
+import { analysisRouter } from '../../routes/analysis.js';
+import { healthRouter } from '../../routes/health.js';
+import { authMiddleware } from '../../middleware/auth.js';
+import { hourlyRateLimiter, shortTermRateLimiter, rateLimitStatus } from '../../middleware/rateLimiter.js';
 
 describe('Analysis Flow Integration Tests', () => {
   let app: Express;
 
   beforeEach(() => {
     process.env.NODE_ENV = 'development';
-    process.env.GEMINI_API_KEY = 'test-api-key';
+    process.env.GEMINI_SERVICE_TOKEN = 'test-api-key';
 
     mockGeminiGenerateContent.mockResolvedValue({
       text: '{"ok":true}'
@@ -92,7 +93,7 @@ describe('Analysis Flow Integration Tests', () => {
 
       // Mock image data (base64)
       const mockImage = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
-      
+
       const response = await agent
         .post('/api/analysis')
         .send({
@@ -113,7 +114,7 @@ describe('Analysis Flow Integration Tests', () => {
         expect(response.body).toHaveProperty('success', true);
         expect(response.body).toHaveProperty('result');
         expect(response.body).toHaveProperty('rateLimitInfo');
-        
+
         // May have disease risks if weather data available
         if (response.body.diseaseRisks) {
           expect(response.body.diseaseRisks).toHaveProperty('risks');
@@ -128,7 +129,7 @@ describe('Analysis Flow Integration Tests', () => {
       const agent = request.agent(app);
 
       const mockImage = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
-      
+
       // Make multiple requests (more than short-term limit of 5)
       const requests = [];
       for (let i = 0; i < 6; i++) {
@@ -144,10 +145,10 @@ describe('Analysis Flow Integration Tests', () => {
       }
 
       const responses = await Promise.all(requests);
-      
+
       // At least one should be rate limited
       const rateLimited = responses.some(r => r.status === 429);
-      
+
       if (rateLimited) {
         const limitedResponse = responses.find(r => r.status === 429);
         expect(limitedResponse?.body).toHaveProperty('code', 'RATE_LIMIT_EXCEEDED');
@@ -161,7 +162,7 @@ describe('Analysis Flow Integration Tests', () => {
       const agent = request.agent(app);
 
       const mockImage = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
-      
+
       const response = await agent
         .post('/api/analysis')
         .send({
@@ -186,7 +187,7 @@ describe('Analysis Flow Integration Tests', () => {
       const agent = request.agent(app);
 
       const mockImage = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
-      
+
       const response = await agent
         .post('/api/analysis')
         .send({
@@ -219,7 +220,7 @@ describe('Analysis Flow Integration Tests', () => {
       const agent = request.agent(app);
 
       const mockImage = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
-      
+
       const response = await agent
         .post('/api/analysis')
         .send({

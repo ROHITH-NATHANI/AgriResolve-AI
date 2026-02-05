@@ -9,7 +9,7 @@
  */
 
 import * as fc from 'fast-check';
-import { DiseaseRiskModel } from '../diseaseRiskModel';
+import { DiseaseRiskModel } from '../diseaseRiskModel.js';
 import {
   CropType,
   DiseaseName,
@@ -18,8 +18,8 @@ import {
   getDiseaseThreshold,
   getAllCropTypes,
   getAllDiseaseNames
-} from '../diseaseThresholds';
-import { ValidatedWeatherData, DataQuality } from '../../utils/weatherValidator';
+} from '../diseaseThresholds.js';
+import { ValidatedWeatherData, DataQuality } from '../../utils/weatherValidator.js';
 
 describe('DiseaseRiskModel - Property-Based Tests', () => {
   let model: DiseaseRiskModel;
@@ -86,7 +86,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
                 // Requirement 1.1: Temperature thresholds are applied
                 // If temperature is within range, risk should be influenced by it
                 const tempInRange = temperature >= threshold.tempMin && temperature <= threshold.tempMax;
-                
+
                 // Requirement 1.2: Wetness thresholds are applied
                 // If wetness is sufficient, risk should be influenced by it
                 const wetnessAboveMin = leafWetnessHours >= threshold.minWetnessHours;
@@ -101,7 +101,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
                 // If both temperature and wetness are optimal, risk should be higher
                 const tempOptimal = Math.abs(temperature - threshold.optimalTemp) < 3;
                 const wetnessOptimal = leafWetnessHours >= threshold.minWetnessHours * 1.5;
-                
+
                 if (tempOptimal && wetnessOptimal && humidity > 80) {
                   // Under optimal conditions, risk should be at least moderate
                   expect(risk.riskScore).toBeGreaterThan(30);
@@ -163,7 +163,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
             });
 
             const diseaseRisk = result.risks.find(r => r.diseaseName === diseaseName);
-            
+
             if (diseaseRisk) {
               // Temperature factor should be reflected in the risk
               const tempInRange = temperature >= threshold.tempMin && temperature <= threshold.tempMax;
@@ -219,7 +219,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
             });
 
             const diseaseRisk = result.risks.find(r => r.diseaseName === diseaseName);
-            
+
             if (diseaseRisk) {
               const wetnessFactor = diseaseRisk.factors.find(f => f.name === 'Leaf Wetness Duration');
               expect(wetnessFactor).toBeDefined();
@@ -289,7 +289,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
             // Each disease should have a separate risk assessment
             const diseaseNames = result.risks.map(r => r.diseaseName);
             const uniqueDiseaseNames = new Set(diseaseNames);
-            
+
             // No duplicate diseases
             expect(uniqueDiseaseNames.size).toBe(diseaseNames.length);
 
@@ -363,13 +363,13 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
                 // Factors should reflect this specific disease's thresholds
                 const tempFactor = risk.factors.find(f => f.name === 'Temperature');
                 const wetnessFactor = risk.factors.find(f => f.name === 'Leaf Wetness Duration');
-                
+
                 expect(tempFactor).toBeDefined();
                 expect(wetnessFactor).toBeDefined();
 
                 // Temperature factor value should match weather data
                 expect(tempFactor!.value).toBe(temperature);
-                
+
                 // Wetness factor value should match input
                 expect(wetnessFactor!.value).toBe(leafWetnessHours);
 
@@ -425,10 +425,10 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
 
             // Get diseases that ARE relevant to this crop
             const relevantDiseases = getDiseasesForCrop(cropType);
-            
+
             // Get all diseases
             const allDiseases = getAllDiseaseNames();
-            
+
             // Get diseases that are NOT relevant to this crop
             const irrelevantDiseases = allDiseases.filter(
               disease => !relevantDiseases.includes(disease)
@@ -436,7 +436,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
 
             // Result should only contain relevant diseases
             const resultDiseaseNames = result.risks.map(r => r.diseaseName);
-            
+
             // All diseases in result should be relevant
             resultDiseaseNames.forEach(diseaseName => {
               expect(relevantDiseases).toContain(diseaseName as DiseaseName);
@@ -483,7 +483,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
             result.risks.forEach(risk => {
               const threshold = getDiseaseThreshold(risk.diseaseName as DiseaseName);
               expect(threshold).toBeDefined();
-              
+
               if (threshold) {
                 // This disease should list the crop in its crops array
                 expect(threshold.crops).toContain(cropType);
@@ -495,10 +495,10 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
             allDiseases.forEach(diseaseName => {
               const threshold = getDiseaseThreshold(diseaseName);
               const resultIncludesDisease = result.risks.some(r => r.diseaseName === diseaseName);
-              
+
               if (threshold) {
                 const diseaseAffectsCrop = threshold.crops.includes(cropType);
-                
+
                 // If disease affects crop, it should be in results
                 if (diseaseAffectsCrop) {
                   expect(resultIncludesDisease).toBe(true);
@@ -561,7 +561,7 @@ describe('DiseaseRiskModel - Property-Based Tests', () => {
             // Same crop should get same diseases regardless of weather
             const diseases1 = result1.risks.map(r => r.diseaseName).sort();
             const diseases2 = result2.risks.map(r => r.diseaseName).sort();
-            
+
             expect(diseases1).toEqual(diseases2);
 
             // Both should match the expected diseases for this crop

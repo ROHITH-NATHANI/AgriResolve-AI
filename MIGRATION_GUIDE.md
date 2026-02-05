@@ -40,7 +40,7 @@ Create `server/.env` with the following variables:
 
 ```bash
 # REQUIRED: Move your Gemini API key from frontend to backend
-GEMINI_API_KEY=your-gemini-api-key-here
+GEMINI_SERVICE_TOKEN=your-gemini-api-key-here
 
 # REQUIRED: Generate a secure session secret
 SESSION_SECRET=your-secure-random-string-here

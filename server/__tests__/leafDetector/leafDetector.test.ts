@@ -12,7 +12,7 @@
  * Requirements: 3.1, 3.2, 3.3, 3.4
  */
 
-import { LeafDetector, RGBPixel, HSVPixel, ImageData } from '../../services/leafDetector';
+import { LeafDetector, RGBPixel, HSVPixel, ImageData } from '../../services/leafDetector.js';
 
 describe('LeafDetector', () => {
   let detector: LeafDetector;
@@ -25,7 +25,7 @@ describe('LeafDetector', () => {
     it('should convert pure red to HSV (0°, 100%, 100%)', () => {
       const rgb: RGBPixel = { r: 255, g: 0, b: 0 };
       const hsv = detector.convertToHSV(rgb);
-      
+
       expect(hsv.h).toBeCloseTo(0, 1);
       expect(hsv.s).toBeCloseTo(100, 1);
       expect(hsv.v).toBeCloseTo(100, 1);
@@ -34,7 +34,7 @@ describe('LeafDetector', () => {
     it('should convert pure green to HSV (120°, 100%, 100%)', () => {
       const rgb: RGBPixel = { r: 0, g: 255, b: 0 };
       const hsv = detector.convertToHSV(rgb);
-      
+
       expect(hsv.h).toBeCloseTo(120, 1);
       expect(hsv.s).toBeCloseTo(100, 1);
       expect(hsv.v).toBeCloseTo(100, 1);
@@ -43,7 +43,7 @@ describe('LeafDetector', () => {
     it('should convert pure blue to HSV (240°, 100%, 100%)', () => {
       const rgb: RGBPixel = { r: 0, g: 0, b: 255 };
       const hsv = detector.convertToHSV(rgb);
-      
+
       expect(hsv.h).toBeCloseTo(240, 1);
       expect(hsv.s).toBeCloseTo(100, 1);
       expect(hsv.v).toBeCloseTo(100, 1);
@@ -52,7 +52,7 @@ describe('LeafDetector', () => {
     it('should convert black to HSV (0°, 0%, 0%)', () => {
       const rgb: RGBPixel = { r: 0, g: 0, b: 0 };
       const hsv = detector.convertToHSV(rgb);
-      
+
       expect(hsv.h).toBe(0);
       expect(hsv.s).toBe(0);
       expect(hsv.v).toBe(0);
@@ -61,7 +61,7 @@ describe('LeafDetector', () => {
     it('should convert white to HSV (0°, 0%, 100%)', () => {
       const rgb: RGBPixel = { r: 255, g: 255, b: 255 };
       const hsv = detector.convertToHSV(rgb);
-      
+
       expect(hsv.h).toBe(0);
       expect(hsv.s).toBe(0);
       expect(hsv.v).toBeCloseTo(100, 1);
@@ -70,7 +70,7 @@ describe('LeafDetector', () => {
     it('should convert gray to HSV with 0% saturation', () => {
       const rgb: RGBPixel = { r: 128, g: 128, b: 128 };
       const hsv = detector.convertToHSV(rgb);
-      
+
       expect(hsv.s).toBe(0);
       expect(hsv.v).toBeCloseTo(50.2, 1);
     });
@@ -232,7 +232,7 @@ describe('LeafDetector', () => {
       // At minimum, we should detect leaf pixels
       expect(result.totalLeafPixels).toBeGreaterThan(0);
       expect(result.leafCoveragePercent).toBeGreaterThan(0);
-      
+
       // Regions might be filtered, but leaf pixels should be detected
       // Note: The multi-stage filtering may remove regions that don't meet criteria
     });
@@ -265,7 +265,7 @@ describe('LeafDetector', () => {
       // At minimum, we should detect leaf pixels
       expect(result.totalLeafPixels).toBeGreaterThan(0);
       expect(result.leafCoveragePercent).toBeGreaterThan(0);
-      
+
       // Regions might be filtered, but leaf pixels should be detected
       // Note: The multi-stage filtering may remove regions that don't meet criteria
     });

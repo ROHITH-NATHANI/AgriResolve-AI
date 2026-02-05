@@ -14,7 +14,7 @@ import {
   canProceedWithPartialData,
   validateManualWeatherData,
   type ServiceError
-} from '../gracefulDegradation';
+} from '../gracefulDegradation.js';
 
 describe('Graceful Degradation - Property Tests', () => {
   /**
@@ -44,20 +44,22 @@ describe('Graceful Degradation - Property Tests', () => {
 
             // Error message must mention the service
             expect(response.message.toLowerCase()).toContain(service);
-            
+
             // Must include service in serviceErrors array
             expect(response.serviceErrors).toHaveLength(1);
-            expect(response.serviceErrors[0].service).toBe(service);
-            
+            expect(response.serviceErrors).toBeDefined();
+            expect(response.serviceErrors![0].service).toBe(service);
+
             // Must list affected features
-            expect(response.affectedFeatures.length).toBeGreaterThan(0);
-            
+            expect(response.affectedFeatures).toBeDefined();
+            expect(response.affectedFeatures!.length).toBeGreaterThan(0);
+
             // Must have proper error code
             expect(response.code).toBe('SERVICE_DEGRADED');
-            
+
             // Retryable flag must match
             expect(response.retryable).toBe(retryable);
-            
+
             if (retryable && retryAfter) {
               expect(response.retryAfter).toBe(retryAfter);
             }
@@ -91,14 +93,15 @@ describe('Graceful Degradation - Property Tests', () => {
 
             // Must include all services in error message or serviceErrors
             errors.forEach(err => {
-              const mentioned = 
+              const mentioned =
                 response.message.toLowerCase().includes(err.service) ||
-                response.serviceErrors.some(se => se.service === err.service);
+                (response.serviceErrors ? response.serviceErrors.some(se => se.service === err.service) : false);
               expect(mentioned).toBe(true);
             });
 
             // Affected features should be non-empty
-            expect(response.affectedFeatures.length).toBeGreaterThan(0);
+            expect(response.affectedFeatures).toBeDefined();
+            expect(response.affectedFeatures!.length).toBeGreaterThan(0);
 
             // If any service is retryable, response should be retryable
             const anyRetryable = errors.some(e => e.retryable);
@@ -142,26 +145,26 @@ describe('Graceful Degradation - Property Tests', () => {
 
             // Limitations should be documented
             if (!geminiAvailable && !hasCachedGemini) {
-              expect(result.limitations.some(l => 
+              expect(result.limitations.some(l =>
                 l.toLowerCase().includes('ai') || l.toLowerCase().includes('analysis')
               )).toBe(true);
             }
 
             if (!weatherAvailable && !hasManualWeather) {
-              expect(result.limitations.some(l => 
+              expect(result.limitations.some(l =>
                 l.toLowerCase().includes('weather') || l.toLowerCase().includes('risk')
               )).toBe(true);
             }
 
             // If using fallback data, should be mentioned in limitations
             if (!geminiAvailable && hasCachedGemini) {
-              expect(result.limitations.some(l => 
+              expect(result.limitations.some(l =>
                 l.toLowerCase().includes('cached')
               )).toBe(true);
             }
 
             if (!weatherAvailable && hasManualWeather) {
-              expect(result.limitations.some(l => 
+              expect(result.limitations.some(l =>
                 l.toLowerCase().includes('manual')
               )).toBe(true);
             }
@@ -196,7 +199,8 @@ describe('Graceful Degradation - Property Tests', () => {
             fc.record({
               temperature: fc.option(fc.float({ min: -50, max: 60 })),
               humidity: fc.option(fc.float({ min: 0, max: 100 })),
-              windSpeed: fc.option(fc.float({ min: 0, max: 50 }))
+              windSpeed: fc.option(fc.float({ min: 0, max: 50 })),
+              source: fc.constant('manual' as const)
             })
           ),
           (manualData) => {
@@ -206,7 +210,7 @@ describe('Graceful Degradation - Property Tests', () => {
               expect(result.error.service).toBe('weather');
               expect(result.error.available).toBe(false);
               expect(result.error.message).toBeTruthy();
-              
+
               if (manualData) {
                 expect(result.useManual).toBe(true);
                 expect(result.weatherData).toBeTruthy();

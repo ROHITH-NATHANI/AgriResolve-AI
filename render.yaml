@@ -1,0 +1,17 @@
+services:
+  # Backend Service (Node.js)
+  - type: web
+    name: agriresolve-backend
+    env: node
+    plan: free # Use Free Tier
+    buildCommand: npm install && npm run build:server
+    startCommand: npm run start:server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    # Add your own secret vars in Render Dashboard:
+    # - GEMINI_SERVICE_TOKEN
+    # - SESSION_SECRET (Generate a random string)
+    # - CLIENT_URL (Set this to your Vercel Frontend URL later)

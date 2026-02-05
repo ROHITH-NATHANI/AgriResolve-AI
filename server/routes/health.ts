@@ -36,8 +36,9 @@ const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T
  */
 async function checkGeminiAPIAvailability(): Promise<{ available: boolean; message: string }> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    
+    const apiKey = process.env.GEMINI_SERVICE_TOKEN;
+
+
     if (!apiKey) {
       return {
         available: false,
@@ -47,7 +48,7 @@ async function checkGeminiAPIAvailability(): Promise<{ available: boolean; messa
 
     // Initialize client
     const ai = new GoogleGenAI({ apiKey: apiKey.replace(/\s/g, '').trim() });
-    
+
     // Try a minimal API call to verify connectivity
     // We'll use a very simple prompt to minimize cost and latency
     const model = ai.models.generateContent;
@@ -76,7 +77,7 @@ async function checkGeminiAPIAvailability(): Promise<{ available: boolean; messa
 
     return {
       available: false,
-      message: error.status === 401 || error.status === 403 
+      message: error.status === 401 || error.status === 403
         ? 'Gemini API authentication failed'
         : 'Gemini API is unavailable'
     };
@@ -160,7 +161,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     logger.error('Health check failed:', error);
-    
+
     res.status(500).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -178,7 +179,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/gemini', async (req: Request, res: Response) => {
   try {
     const status = await checkGeminiAPIAvailability();
-    
+
     res.status(status.available ? 200 : 503).json({
       service: 'gemini',
       available: status.available,
@@ -187,7 +188,7 @@ router.get('/gemini', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     logger.error('Gemini health check failed:', error);
-    
+
     res.status(500).json({
       service: 'gemini',
       available: false,
@@ -206,7 +207,7 @@ router.get('/gemini', async (req: Request, res: Response) => {
 router.get('/weather', async (req: Request, res: Response) => {
   try {
     const status = await checkWeatherAPIAvailability();
-    
+
     res.status(status.available ? 200 : 503).json({
       service: 'weather',
       available: status.available,
@@ -215,7 +216,7 @@ router.get('/weather', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     logger.error('Weather health check failed:', error);
-    
+
     res.status(500).json({
       service: 'weather',
       available: false,

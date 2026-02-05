@@ -9,7 +9,7 @@
  */
 
 import * as fc from 'fast-check';
-import WeatherValidator, { DataQuality, RawWeatherData } from '../weatherValidator';
+import WeatherValidator, { DataQuality, RawWeatherData } from '../weatherValidator.js';
 
 describe('WeatherValidator - Property-Based Tests', () => {
   let validator: WeatherValidator;
@@ -362,7 +362,7 @@ describe('WeatherValidator - Property-Based Tests', () => {
             expect(validator.validateTemperature(missingValue)).toBeNull();
             expect(validator.validateHumidity(missingValue)).toBeNull();
             expect(validator.validateWindSpeed(missingValue)).toBeNull();
-            
+
             // Explicit zero should be preserved
             expect(validator.validateTemperature(0)).toBe(0);
             expect(validator.validateHumidity(0)).toBe(0);
@@ -398,17 +398,17 @@ describe('WeatherValidator - Property-Based Tests', () => {
           }),
           (rawData) => {
             const result = validator.validate(rawData as RawWeatherData);
-            
+
             // All invalid or missing values should be null
             expect(result.temperature).toBeNull();
             expect(result.relativeHumidity).toBeNull();
             expect(result.windSpeed).toBeNull();
-            
+
             // Verify no fallback values are used
             expect(result.temperature).not.toBe(0);
             expect(result.relativeHumidity).not.toBe(0);
             expect(result.windSpeed).not.toBe(0);
-            
+
             // Data quality should reflect missing data
             expect(result.dataQuality).toBe(DataQuality.INSUFFICIENT);
           }
@@ -428,14 +428,14 @@ describe('WeatherValidator - Property-Based Tests', () => {
           }),
           (rawData) => {
             const result = validator.validate(rawData as RawWeatherData);
-            
+
             // Valid values should be preserved
             expect(result.temperature).toBe(rawData.temperature);
             expect(result.windSpeed).toBe(rawData.windSpeed);
-            
+
             // Missing value should be null
             expect(result.relativeHumidity).toBeNull();
-            
+
             // Data quality should be PARTIAL (1 null out of 3)
             expect(result.dataQuality).toBe(DataQuality.PARTIAL);
           }
@@ -557,7 +557,7 @@ describe('WeatherValidator - Property-Based Tests', () => {
           (rawData) => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
-            
+
             expect(availability.canCalculateRisk).toBe(true);
             expect(availability.hasTemperature).toBe(true);
             expect(availability.hasHumidity).toBe(true);
@@ -579,7 +579,7 @@ describe('WeatherValidator - Property-Based Tests', () => {
           (rawData) => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
-            
+
             expect(availability.canCalculateRisk).toBe(false);
             expect(availability.hasTemperature).toBe(false);
             expect(availability.missingFields).toContain('temperature');
@@ -601,7 +601,7 @@ describe('WeatherValidator - Property-Based Tests', () => {
           (rawData) => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
-            
+
             expect(availability.canCalculateRisk).toBe(false);
             expect(availability.hasHumidity).toBe(false);
             expect(availability.missingFields).toContain('humidity');
@@ -634,23 +634,23 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // If any field is null, there should be at least one notification message
             if (result.temperature === null || result.relativeHumidity === null || result.windSpeed === null) {
               expect(messages.length).toBeGreaterThan(0);
-              
+
               // The first message should mention unavailable data
               expect(messages[0]).toContain('unavailable');
-              
+
               // Messages should specifically mention which fields are missing
               if (result.temperature === null) {
-                expect(messages.some(m => m.includes('temperature'))).toBe(true);
+                expect(messages.some((m: string) => m.includes('temperature'))).toBe(true);
               }
               if (result.relativeHumidity === null) {
-                expect(messages.some(m => m.includes('humidity'))).toBe(true);
+                expect(messages.some((m: string) => m.includes('humidity'))).toBe(true);
               }
               if (result.windSpeed === null) {
-                expect(messages.some(m => m.includes('wind speed'))).toBe(true);
+                expect(messages.some((m: string) => m.includes('wind speed'))).toBe(true);
               }
             } else {
               // If all fields are present, no missing data messages
@@ -674,13 +674,13 @@ describe('WeatherValidator - Property-Based Tests', () => {
           (rawData) => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
-            
+
             // Verify missingFields array accurately reflects null values
             const expectedMissing: string[] = [];
             if (result.temperature === null) expectedMissing.push('temperature');
             if (result.relativeHumidity === null) expectedMissing.push('humidity');
             if (result.windSpeed === null) expectedMissing.push('wind speed');
-            
+
             expect(availability.missingFields.sort()).toEqual(expectedMissing.sort());
           }
         ),
@@ -701,21 +701,21 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // All messages should be strings
-            messages.forEach(message => {
+            messages.forEach((message: string) => {
               expect(typeof message).toBe('string');
               expect(message.length).toBeGreaterThan(0);
             });
-            
+
             // If there are missing fields, messages should be informative
             if (availability.missingFields.length > 0) {
               expect(messages.length).toBeGreaterThan(0);
-              
+
               // At least one message should mention the specific missing fields
               const firstMessage = messages[0];
               availability.missingFields.forEach(field => {
-                expect(messages.some(m => m.includes(field))).toBe(true);
+                expect(messages.some((m: string) => m.includes(field))).toBe(true);
               });
             }
           }
@@ -737,10 +737,10 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Should have at least one message about unavailable data
             expect(messages.length).toBeGreaterThan(0);
-            expect(messages.some(m => m.toLowerCase().includes('unavailable'))).toBe(true);
+            expect(messages.some((m: string) => m.toLowerCase().includes('unavailable'))).toBe(true);
           }
         ),
         { numRuns: 100 }
@@ -777,13 +777,13 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Should have exactly one missing field
             expect(availability.missingFields.length).toBe(1);
-            
+
             // Messages should specifically mention the missing field
             const missingField = availability.missingFields[0];
-            expect(messages.some(m => m.includes(missingField))).toBe(true);
+            expect(messages.some((m: string) => m.includes(missingField))).toBe(true);
           }
         ),
         { numRuns: 100 }
@@ -830,14 +830,14 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Risk calculation should not be possible
             expect(availability.canCalculateRisk).toBe(false);
-            
+
             // Should have messages indicating incomplete or unavailable risk calculation
             expect(messages.length).toBeGreaterThan(0);
-            expect(messages.some(m => 
-              m.toLowerCase().includes('incomplete') || 
+            expect(messages.some(m =>
+              m.toLowerCase().includes('incomplete') ||
               m.toLowerCase().includes('unavailable')
             )).toBe(true);
           }
@@ -859,12 +859,12 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Risk calculation should be possible
             expect(availability.canCalculateRisk).toBe(true);
-            
+
             // Should not have messages about unavailable risk assessment
-            expect(messages.every(m => 
+            expect(messages.every(m =>
               !m.includes('Disease risk assessment unavailable')
             )).toBe(true);
           }
@@ -896,17 +896,17 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Should mention the specific missing critical field
             if (result.temperature === null) {
-              expect(messages.some(m => m.includes('temperature'))).toBe(true);
+              expect(messages.some((m: string) => m.includes('temperature'))).toBe(true);
             }
             if (result.relativeHumidity === null) {
-              expect(messages.some(m => m.includes('humidity'))).toBe(true);
+              expect(messages.some((m: string) => m.includes('humidity'))).toBe(true);
             }
-            
+
             // Should indicate incomplete calculation
-            expect(messages.some(m => m.toLowerCase().includes('incomplete'))).toBe(true);
+            expect(messages.some((m: string) => m.toLowerCase().includes('incomplete'))).toBe(true);
           }
         ),
         { numRuns: 100 }
@@ -926,9 +926,9 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Should indicate complete unavailability
-            expect(messages.some(m => 
+            expect(messages.some(m =>
               m.includes('Disease risk assessment unavailable')
             )).toBe(true);
           }
@@ -950,16 +950,16 @@ describe('WeatherValidator - Property-Based Tests', () => {
             const result = validator.validate(rawData as RawWeatherData);
             const availability = validator.handleMissingData(result);
             const messages = validator.generateMissingDataMessages(availability);
-            
+
             // Risk calculation should still be possible
             expect(availability.canCalculateRisk).toBe(true);
-            
+
             // Should mention wind speed is missing but not indicate incomplete risk calculation
-            expect(messages.some(m => m.includes('wind speed'))).toBe(true);
-            expect(messages.some(m => m.includes('wind conditions'))).toBe(true);
-            
+            expect(messages.some((m: string) => m.includes('wind speed'))).toBe(true);
+            expect(messages.some((m: string) => m.includes('wind conditions'))).toBe(true);
+
             // Should not say risk assessment is unavailable
-            expect(messages.every(m => 
+            expect(messages.every((m: string) =>
               !m.includes('Disease risk assessment unavailable')
             )).toBe(true);
           }

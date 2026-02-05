@@ -5,9 +5,9 @@
  * Requirements: 1.1, 1.2, 1.6, 1.7
  */
 
-import { DiseaseRiskModel } from '../diseaseRiskModel';
-import { CropType, DiseaseName } from '../diseaseThresholds';
-import { ValidatedWeatherData, DataQuality } from '../../utils/weatherValidator';
+import { DiseaseRiskModel } from '../diseaseRiskModel.js';
+import { CropType, DiseaseName } from '../diseaseThresholds.js';
+import { ValidatedWeatherData, DataQuality } from '../../utils/weatherValidator.js';
 
 describe('DiseaseRiskModel', () => {
   let model: DiseaseRiskModel;
@@ -525,7 +525,7 @@ describe('DiseaseRiskModel', () => {
       // Check late blight specifically (requires 10h wetness)
       const lateBlightNoWetness = result.risks.find(r => r.diseaseName === DiseaseName.LATE_BLIGHT);
       const lateBlightWithWetness = resultWithWetness.risks.find(r => r.diseaseName === DiseaseName.LATE_BLIGHT);
-      
+
       expect(lateBlightNoWetness!.riskScore).toBeLessThan(lateBlightWithWetness!.riskScore);
     });
 

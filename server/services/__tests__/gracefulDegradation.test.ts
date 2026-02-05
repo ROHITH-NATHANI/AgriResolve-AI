@@ -15,7 +15,7 @@ import {
   cacheAnalysisResult,
   analysisCache,
   type ServiceError
-} from '../gracefulDegradation';
+} from '../gracefulDegradation.js';
 
 describe('Graceful Degradation - Unit Tests', () => {
   beforeEach(() => {
@@ -136,7 +136,8 @@ describe('Graceful Degradation - Unit Tests', () => {
       expect(response.message).toContain('gemini');
       expect(response.message).toContain('weather');
       expect(response.serviceErrors).toHaveLength(2);
-      expect(response.affectedFeatures.length).toBeGreaterThan(0);
+      expect(response.affectedFeatures).toBeDefined();
+      expect(response.affectedFeatures!.length).toBeGreaterThan(0);
       expect(response.retryable).toBe(true);
       expect(response.retryAfter).toBe(300);
     });
@@ -181,7 +182,7 @@ describe('Graceful Degradation - Unit Tests', () => {
       );
 
       expect(result.canProceed).toBe(true);
-      expect(result.limitations.some(l => 
+      expect(result.limitations.some(l =>
         l.toLowerCase().includes('weather')
       )).toBe(true);
     });
@@ -195,7 +196,7 @@ describe('Graceful Degradation - Unit Tests', () => {
       );
 
       expect(result.canProceed).toBe(true);
-      expect(result.limitations.some(l => 
+      expect(result.limitations.some(l =>
         l.toLowerCase().includes('cached')
       )).toBe(true);
     });
@@ -209,7 +210,7 @@ describe('Graceful Degradation - Unit Tests', () => {
       );
 
       expect(result.canProceed).toBe(true);
-      expect(result.limitations.some(l => 
+      expect(result.limitations.some(l =>
         l.toLowerCase().includes('manual')
       )).toBe(true);
     });

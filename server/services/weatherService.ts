@@ -8,8 +8,8 @@
 import { Request } from 'express';
 import { getTimezoneForWeatherAPI } from '../utils/userTimezoneStorage.js';
 import { createWeatherAPIParams, parseTimezoneFromWeatherAPI } from '../utils/timezoneUtils.js';
-import WeatherValidator, { ValidatedWeatherData, RawWeatherData } from '../utils/weatherValidator.js';
-import logger from '../utils/logger.js';
+import { WeatherValidator, ValidatedWeatherData, RawWeatherData } from '../utils/weatherValidator.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Weather API response structure
@@ -55,7 +55,7 @@ export async function fetchCurrentWeather(
     // Build API URL with explicit timezone
     const url = new URL('https://api.open-meteo.com/v1/forecast');
     const params = createWeatherAPIParams(latitude, longitude, timezone);
-    
+
     // Add current weather parameters
     params.set('current', [
       'temperature_2m',
@@ -155,7 +155,7 @@ export async function fetchHourlyWeather(
     // Build API URL with explicit timezone
     const url = new URL('https://api.open-meteo.com/v1/forecast');
     const params = createWeatherAPIParams(latitude, longitude, timezone);
-    
+
     // Add hourly weather parameters
     params.set('hourly', [
       'temperature_2m',

@@ -5,7 +5,7 @@
  * Requirements: 8.1, 8.2, 8.3, 11.1, 11.2
  */
 
-import WeatherValidator, { DataQuality, RawWeatherData, ValidatedWeatherData, DataAvailability } from '../weatherValidator';
+import WeatherValidator, { DataQuality, RawWeatherData, ValidatedWeatherData, DataAvailability } from '../weatherValidator.js';
 
 describe('WeatherValidator', () => {
   let validator: WeatherValidator;
@@ -617,8 +617,8 @@ describe('WeatherValidator', () => {
 
       const messages = validator.generateMissingDataMessages(availability);
 
-      expect(messages.some(m => 
-        m.includes('Disease risk assessment unavailable') || 
+      expect(messages.some(m =>
+        m.includes('Disease risk assessment unavailable') ||
         m.includes('incomplete')
       )).toBe(true);
     });

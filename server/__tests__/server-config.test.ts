@@ -82,7 +82,7 @@ describe('Backend API Proxy Server Configuration', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
 
-      const HOST = process.env.NODE_ENV === 'production' 
+      const HOST = process.env.NODE_ENV === 'production'
         ? process.env.HOST || '0.0.0.0'
         : '127.0.0.1';
 
@@ -94,11 +94,11 @@ describe('Backend API Proxy Server Configuration', () => {
     it('should allow HOST configuration in production mode', () => {
       const originalEnv = process.env.NODE_ENV;
       const originalHost = process.env.HOST;
-      
+
       process.env.NODE_ENV = 'production';
       process.env.HOST = '0.0.0.0';
 
-      const HOST = process.env.NODE_ENV === 'production' 
+      const HOST = process.env.NODE_ENV === 'production'
         ? process.env.HOST || '0.0.0.0'
         : '127.0.0.1';
 
@@ -115,11 +115,11 @@ describe('Backend API Proxy Server Configuration', () => {
     it('should default to 0.0.0.0 in production if HOST not set', () => {
       const originalEnv = process.env.NODE_ENV;
       const originalHost = process.env.HOST;
-      
+
       process.env.NODE_ENV = 'production';
       delete process.env.HOST;
 
-      const HOST = process.env.NODE_ENV === 'production' 
+      const HOST = process.env.NODE_ENV === 'production'
         ? process.env.HOST || '0.0.0.0'
         : '127.0.0.1';
 
@@ -135,7 +135,7 @@ describe('Backend API Proxy Server Configuration', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
 
-      const HOST = process.env.NODE_ENV === 'production' 
+      const HOST = process.env.NODE_ENV === 'production'
         ? process.env.HOST || '0.0.0.0'
         : '127.0.0.1';
 
@@ -165,9 +165,9 @@ describe('Backend API Proxy Server Configuration', () => {
       expect(frontendUrl).toMatch(/^https?:\/\//);
     });
 
-    it('should have GEMINI_API_KEY for server-side use', () => {
+    it('should have GEMINI_SERVICE_TOKEN for server-side use', () => {
       // In test environment, this might not be set, but we check the pattern
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = process.env.GEMINI_SERVICE_TOKEN;
       // We don't require it in tests, but if set, it should be non-empty
       if (apiKey) {
         expect(apiKey.length).toBeGreaterThan(0);

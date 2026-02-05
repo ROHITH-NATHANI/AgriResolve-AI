@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 // Load .env from root
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-const apiKey = process.env.VITE_GEMINI_API_TOKEN;
+const apiKey = process.env.GEMINI_SERVICE_TOKEN;
 
 console.log("Testing Key:", apiKey ? `${apiKey.substring(0, 5)}...` : "MISSING");
 

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { HistorySidebar } from '../features/history/components/HistorySidebar';
 import { CropAnalysisRecord } from '../features/history/types';
-import { ShieldCheck, Plus, Sprout, Sun, RefreshCw, ChevronDown, ChevronRight, History, Menu, X } from 'lucide-react';
+import { ShieldCheck, Plus, Sprout, Sun, RefreshCw, ChevronDown, ChevronRight, History, Menu, X, LayoutGrid } from 'lucide-react';
 import { InsightsDashboard } from '../features/assistant/components/InsightsDashboard';
 import { useLocationWeather } from '../features/assistant/hooks/useLocationWeather';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,8 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelectHistory = () => { }, onNewAnalysis }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { locationName, requestPermission, consent } = useLocationWeather();
   const [showHistory, setShowHistory] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -36,8 +39,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
     <div className="min-h-screen flex flex-col md:flex-row font-inter bg-gray-50">
 
       {/* Mobile Header (Visible only on small screens) */}
-      <div className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-        <div className="flex items-center gap-2">
+      <div className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm safe-area-inset-top">
+        <div className="flex items-center gap-2" onClick={() => navigate('/')}>
           <div className="w-8 h-8 flex items-center justify-center bg-green-50 rounded-lg border border-green-100">
             <img src="/logo.png" alt={t('brand_logo_alt', { defaultValue: 'AgriResolve AI Logo' })} className="w-6 h-6 object-contain" />
           </div>
@@ -67,21 +70,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
       `}>
 
         {/* 1. Header & Identity */}
-        <div className="p-5 border-b border-gray-100 bg-gradient-to-b from-white to-gray-50">
+        <div className="p-5 border-b border-gray-100 bg-gradient-to-b from-white to-gray-50 cursor-pointer" onClick={() => navigate('/')}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 flex items-center justify-center bg-green-50 rounded-xl border border-green-100 shadow-sm">
               <img src="/logo.png" alt={t('brand_logo_alt', { defaultValue: 'AgriResolve AI Logo' })} className="w-8 h-8 object-contain" />
             </div>
             <div>
               <h1 className="text-lg font-black text-gray-900 tracking-tight leading-tight">{t('brand_name', { defaultValue: 'AgriResolve AI' })}</h1>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                <span className="text-[10px] font-bold text-green-700 tracking-widest uppercase">{t('online', { defaultValue: 'System Active' })}</span>
-              </div>
             </div>
           </div>
           {/* Close Button for Mobile */}
-          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-gray-400 hover:text-gray-600">
+          <button onClick={(e) => { e.stopPropagation(); setIsMobileMenuOpen(false); }} className="md:hidden absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -90,10 +89,23 @@ export const Layout: React.FC<LayoutProps> = ({ children, history = [], onSelect
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
 
           {/* 2. Quick Actions */}
-          <div className="p-4 grid grid-cols-2 gap-3">
+          <div className="p-4 space-y-2">
             <button
-              onClick={onNewAnalysis}
-              className="col-span-2 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95 group"
+              onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${location.pathname === '/' ? 'bg-green-50 text-green-700 font-bold' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <LayoutGrid className="w-5 h-5" />
+              <span className="text-sm">{t('nav_home', 'Hub')}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (onNewAnalysis) onNewAnalysis();
+                // If we are mostly just navigating to diagnosis
+                navigate('/diagnosis');
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95 group"
             >
               <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
               <span className="font-bold text-sm tracking-wide">{t('new_scan', { defaultValue: 'New Analysis' })}</span>

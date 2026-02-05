@@ -4,7 +4,7 @@ This document describes all environment variables required for the AgriResolve-A
 
 ## Required Variables
 
-### GEMINI_API_KEY
+### GEMINI_SERVICE_TOKEN
 
 **Description**: API key for Google Gemini AI service
 
@@ -14,7 +14,7 @@ This document describes all environment variables required for the AgriResolve-A
 
 **Format**: String starting with "AI" followed by alphanumeric characters
 
-**Example**: `GEMINI_API_KEY=AIzaSyD...`
+**Example**: `GEMINI_SERVICE_TOKEN=AIzaSyD...`
 
 **Usage**: Used by the backend server to authenticate with the Gemini API for image analysis and AI-powered disease detection.
 
@@ -162,7 +162,7 @@ CLIENT_URL=http://localhost:5173
 
 ```bash
 # Backend API Key (REQUIRED)
-GEMINI_API_KEY=AIzaSyD...your-key-here
+GEMINI_SERVICE_TOKEN=AIzaSyD...your-key-here
 
 # Session Secret (REQUIRED - change this!)
 SESSION_SECRET=change-this-secret-in-production
@@ -181,7 +181,7 @@ CLIENT_URL=http://localhost:5173
 
 ```bash
 # Backend API Key (REQUIRED)
-GEMINI_API_KEY=AIzaSyD...your-production-key
+GEMINI_SERVICE_TOKEN=AIzaSyD...your-production-key
 
 # Session Secret (REQUIRED - use strong random string!)
 SESSION_SECRET=<generate-secure-random-string-here>
@@ -228,9 +228,9 @@ CLIENT_URL=https://your-domain.com
 
 ## Troubleshooting
 
-### "GEMINI_API_KEY not found in environment variables"
+### "GEMINI_SERVICE_TOKEN not found in environment variables"
 
-**Solution**: Ensure `GEMINI_API_KEY` is set in your `.env` file in the backend directory.
+**Solution**: Ensure `GEMINI_SERVICE_TOKEN` is set in your `.env` file in the backend directory.
 
 ### "Session secret not configured"
 
@@ -251,7 +251,7 @@ CLIENT_URL=https://your-domain.com
 If you previously had `VITE_GEMINI_API_TOKEN` in your frontend `.env`:
 
 1. **Remove from frontend**: Delete `VITE_GEMINI_API_TOKEN` from frontend `.env`
-2. **Add to backend**: Add `GEMINI_API_KEY` to backend `.env`
+2. **Add to backend**: Add `GEMINI_SERVICE_TOKEN` to backend `.env`
 3. **Update frontend code**: Frontend now uses `/api/analysis` endpoint (already updated)
 4. **Test**: Verify analysis requests work through the backend proxy
 

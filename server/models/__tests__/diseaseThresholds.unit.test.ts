@@ -6,9 +6,9 @@
  * Requirements: 1.3, 1.4, 1.5, 2.3, 2.5
  */
 
-import { DiseaseRiskModel } from '../diseaseRiskModel';
-import { CropType, DiseaseName } from '../diseaseThresholds';
-import { ValidatedWeatherData, DataQuality } from '../../utils/weatherValidator';
+import { DiseaseRiskModel } from '../diseaseRiskModel.js';
+import { CropType, DiseaseName } from '../diseaseThresholds.js';
+import { ValidatedWeatherData, DataQuality } from '../../utils/weatherValidator.js';
 
 describe('Disease Thresholds - Exact Values Unit Tests', () => {
   let model: DiseaseRiskModel;
@@ -456,7 +456,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
       };
 
       const leafWetness = model.calculateLeafWetness(weatherData, 'UTC');
-      
+
       // At exactly 3 m/s, should NOT apply reduction (threshold is >3, not >=3)
       // So wetness should be higher than with wind > 3 m/s
       expect(leafWetness).toBeGreaterThan(0);
@@ -483,7 +483,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
 
       // Above 3 m/s should have 20% reduction, so should be less than at 3 m/s
       expect(leafWetnessAbove).toBeLessThan(leafWetnessAt);
-      
+
       // Verify approximately 20% reduction
       const expectedReduction = leafWetnessAt * 0.8;
       expect(leafWetnessAbove).toBeCloseTo(expectedReduction, 1);
@@ -501,7 +501,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
       };
 
       const leafWetness = model.calculateLeafWetness(weatherData, 'UTC');
-      
+
       // Below 3 m/s should NOT apply reduction
       expect(leafWetness).toBeGreaterThan(0);
     });
@@ -527,7 +527,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
 
       // High wind should reduce wetness by 20%
       expect(leafWetnessHigh).toBeLessThan(leafWetnessLow);
-      
+
       // Verify approximately 20% reduction
       const expectedReduction = leafWetnessLow * 0.8;
       expect(leafWetnessHigh).toBeCloseTo(expectedReduction, 1);
@@ -549,7 +549,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
       };
 
       const leafWetness = model.calculateLeafWetness(weatherData, 'UTC');
-      
+
       // At exactly 90%, should NOT trigger high wetness (threshold is >90, not >=90)
       expect(leafWetness).toBeGreaterThan(0);
     });
@@ -589,7 +589,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
       };
 
       const leafWetness = model.calculateLeafWetness(weatherData, 'UTC');
-      
+
       // High humidity should result in significant wetness hours
       expect(leafWetness).toBeGreaterThan(8);
     });
@@ -629,7 +629,7 @@ describe('Disease Thresholds - Exact Values Unit Tests', () => {
       };
 
       const leafWetness = model.calculateLeafWetness(weatherData, 'UTC');
-      
+
       // Maximum humidity should result in high wetness hours
       expect(leafWetness).toBeGreaterThan(10);
     });

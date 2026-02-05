@@ -7,11 +7,11 @@
  */
 
 import type { Express } from 'express';
-import { healthRouter } from '../health';
+import { healthRouter } from '../health.js';
 
 // Use require for express and supertest to avoid ESM/CommonJS interop issues in Jest
-const express = require('express');
-const request = require('supertest');
+import express = require('express');
+import request = require('supertest');
 
 // Mock the logger
 jest.mock('../../utils/logger', () => ({
@@ -37,7 +37,7 @@ jest.mock('@google/genai', () => ({
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 // Set up environment variable
-process.env.GEMINI_API_KEY = 'test-api-key';
+process.env.GEMINI_SERVICE_TOKEN = 'test-api-key';
 
 describe('Health Check Routes', () => {
   let app: Express;
@@ -146,8 +146,8 @@ describe('Health Check Routes', () => {
 
     it('should return unavailable when Gemini API key is missing', async () => {
       // Temporarily remove API key
-      const originalKey = process.env.GEMINI_API_KEY;
-      delete process.env.GEMINI_API_KEY;
+      const originalKey = process.env.GEMINI_SERVICE_TOKEN;
+      delete process.env.GEMINI_SERVICE_TOKEN;
 
       const response = await request(app).get('/api/health/gemini');
 
@@ -160,7 +160,7 @@ describe('Health Check Routes', () => {
 
       // Restore API key
       if (originalKey) {
-        process.env.GEMINI_API_KEY = originalKey;
+        process.env.GEMINI_SERVICE_TOKEN = originalKey;
       }
     });
 

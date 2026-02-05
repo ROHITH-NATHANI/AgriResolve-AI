@@ -5,17 +5,12 @@
  * Requirement 12.3: Implement user timezone detection and storage
  */
 
+/// <reference path="../types/express.d.ts" />
+
 import { Request } from 'express';
 import { detectUserTimezone, validateTimezone, UserTimezoneInfo } from './timezoneUtils.js';
 
-/**
- * Extend Express Session to include user timezone
- */
-declare module 'express-session' {
-  interface SessionData {
-    userTimezone?: UserTimezoneInfo;
-  }
-}
+
 
 /**
  * Get user timezone from session or detect it
@@ -32,7 +27,7 @@ export function getUserTimezone(req: Request): UserTimezoneInfo {
 
   // Detect timezone (will default to UTC if detection fails)
   const detectedTimezone = detectUserTimezone();
-  
+
   // Store in session for future requests
   if (req.session) {
     req.session.userTimezone = detectedTimezone;
@@ -100,7 +95,7 @@ export function clearUserTimezone(req: Request): void {
  */
 export function getTimezoneForWeatherAPI(req: Request): string {
   const userTimezone = getUserTimezone(req);
-  
+
   // If we have a valid user timezone, use it
   // Otherwise, use 'auto' to let the API determine it from coordinates
   if (userTimezone.detectionMethod !== 'default') {

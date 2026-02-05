@@ -16,14 +16,14 @@ import {
   getAllDiseaseNames,
   getHumanReadableDiseaseName,
   getHumanReadableCropName
-} from '../diseaseThresholds';
+} from '../diseaseThresholds.js';
 
 describe('Disease Threshold Configuration', () => {
   describe('DISEASE_THRESHOLDS constant', () => {
     // Requirement 1.3: Late blight thresholds
     test('late blight has correct thresholds (10-25°C, 10h wetness, optimal 18°C)', () => {
       const lateBlight = DISEASE_THRESHOLDS[DiseaseName.LATE_BLIGHT];
-      
+
       expect(lateBlight).toBeDefined();
       expect(lateBlight.tempMin).toBe(10);
       expect(lateBlight.tempMax).toBe(25);
@@ -36,7 +36,7 @@ describe('Disease Threshold Configuration', () => {
     // Requirement 1.4: Powdery mildew thresholds
     test('powdery mildew has correct thresholds (15-30°C, 6h wetness, optimal 22°C)', () => {
       const powderyMildew = DISEASE_THRESHOLDS[DiseaseName.POWDERY_MILDEW];
-      
+
       expect(powderyMildew).toBeDefined();
       expect(powderyMildew.tempMin).toBe(15);
       expect(powderyMildew.tempMax).toBe(30);
@@ -50,7 +50,7 @@ describe('Disease Threshold Configuration', () => {
     // Requirement 1.5: Rust disease thresholds
     test('rust has correct thresholds (15-25°C, 8h wetness, optimal 20°C)', () => {
       const rust = DISEASE_THRESHOLDS[DiseaseName.RUST];
-      
+
       expect(rust).toBeDefined();
       expect(rust.tempMin).toBe(15);
       expect(rust.tempMax).toBe(25);
@@ -63,10 +63,10 @@ describe('Disease Threshold Configuration', () => {
 
     test('all diseases have required threshold properties', () => {
       const diseaseNames = getAllDiseaseNames();
-      
+
       diseaseNames.forEach(diseaseName => {
         const threshold = DISEASE_THRESHOLDS[diseaseName];
-        
+
         expect(threshold).toBeDefined();
         expect(threshold.crops).toBeDefined();
         expect(Array.isArray(threshold.crops)).toBe(true);
@@ -75,7 +75,7 @@ describe('Disease Threshold Configuration', () => {
         expect(typeof threshold.tempMax).toBe('number');
         expect(typeof threshold.minWetnessHours).toBe('number');
         expect(typeof threshold.optimalTemp).toBe('number');
-        
+
         // Validate ranges
         expect(threshold.tempMin).toBeLessThan(threshold.tempMax);
         expect(threshold.optimalTemp).toBeGreaterThanOrEqual(threshold.tempMin);
@@ -89,7 +89,7 @@ describe('Disease Threshold Configuration', () => {
       expect(DISEASE_THRESHOLDS[DiseaseName.LATE_BLIGHT]).toBeDefined();
       expect(DISEASE_THRESHOLDS[DiseaseName.POWDERY_MILDEW]).toBeDefined();
       expect(DISEASE_THRESHOLDS[DiseaseName.RUST]).toBeDefined();
-      
+
       // Additional common diseases
       expect(DISEASE_THRESHOLDS[DiseaseName.EARLY_BLIGHT]).toBeDefined();
       expect(DISEASE_THRESHOLDS[DiseaseName.DOWNY_MILDEW]).toBeDefined();
@@ -100,7 +100,7 @@ describe('Disease Threshold Configuration', () => {
   describe('getDiseasesForCrop', () => {
     test('returns diseases for tomato', () => {
       const diseases = getDiseasesForCrop(CropType.TOMATO);
-      
+
       expect(diseases).toContain(DiseaseName.LATE_BLIGHT);
       expect(diseases).toContain(DiseaseName.EARLY_BLIGHT);
       expect(diseases).toContain(DiseaseName.POWDERY_MILDEW);
@@ -111,14 +111,14 @@ describe('Disease Threshold Configuration', () => {
 
     test('returns diseases for potato', () => {
       const diseases = getDiseasesForCrop(CropType.POTATO);
-      
+
       expect(diseases).toContain(DiseaseName.LATE_BLIGHT);
       expect(diseases).toContain(DiseaseName.EARLY_BLIGHT);
     });
 
     test('returns diseases for wheat', () => {
       const diseases = getDiseasesForCrop(CropType.WHEAT);
-      
+
       expect(diseases).toContain(DiseaseName.POWDERY_MILDEW);
       expect(diseases).toContain(DiseaseName.RUST);
       expect(diseases).toContain(DiseaseName.BACTERIAL_BLIGHT);
@@ -126,7 +126,7 @@ describe('Disease Threshold Configuration', () => {
 
     test('returns diseases for corn', () => {
       const diseases = getDiseasesForCrop(CropType.CORN);
-      
+
       expect(diseases).toContain(DiseaseName.RUST);
       expect(diseases).toContain(DiseaseName.GRAY_LEAF_SPOT);
       expect(diseases).toContain(DiseaseName.NORTHERN_CORN_LEAF_BLIGHT);
@@ -136,7 +136,7 @@ describe('Disease Threshold Configuration', () => {
 
     test('returns diseases for soybean', () => {
       const diseases = getDiseasesForCrop(CropType.SOYBEAN);
-      
+
       expect(diseases).toContain(DiseaseName.RUST);
       expect(diseases).toContain(DiseaseName.ANTHRACNOSE);
       expect(diseases).toContain(DiseaseName.DOWNY_MILDEW);
@@ -147,7 +147,7 @@ describe('Disease Threshold Configuration', () => {
 
     test('returns diseases for grape', () => {
       const diseases = getDiseasesForCrop(CropType.GRAPE);
-      
+
       expect(diseases).toContain(DiseaseName.POWDERY_MILDEW);
       expect(diseases).toContain(DiseaseName.DOWNY_MILDEW);
       expect(diseases).toContain(DiseaseName.BLACK_ROT);
@@ -156,7 +156,7 @@ describe('Disease Threshold Configuration', () => {
 
     test('returns diseases for apple', () => {
       const diseases = getDiseasesForCrop(CropType.APPLE);
-      
+
       expect(diseases).toContain(DiseaseName.APPLE_SCAB);
       expect(diseases).toContain(DiseaseName.FIRE_BLIGHT);
       expect(diseases).toContain(DiseaseName.CEDAR_APPLE_RUST);
@@ -165,11 +165,11 @@ describe('Disease Threshold Configuration', () => {
     test('returns only relevant diseases for each crop', () => {
       const tomatoDiseases = getDiseasesForCrop(CropType.TOMATO);
       const appleDiseases = getDiseasesForCrop(CropType.APPLE);
-      
+
       // Apple-specific diseases should not appear in tomato diseases
       expect(tomatoDiseases).not.toContain(DiseaseName.APPLE_SCAB);
       expect(tomatoDiseases).not.toContain(DiseaseName.FIRE_BLIGHT);
-      
+
       // Tomato-specific diseases should not appear in apple diseases
       expect(appleDiseases).not.toContain(DiseaseName.SEPTORIA_LEAF_SPOT);
       expect(appleDiseases).not.toContain(DiseaseName.FUSARIUM_WILT);
@@ -179,7 +179,7 @@ describe('Disease Threshold Configuration', () => {
   describe('getDiseaseThreshold', () => {
     test('returns threshold for valid disease', () => {
       const threshold = getDiseaseThreshold(DiseaseName.LATE_BLIGHT);
-      
+
       expect(threshold).toBeDefined();
       expect(threshold?.tempMin).toBe(10);
       expect(threshold?.tempMax).toBe(25);
@@ -187,7 +187,7 @@ describe('Disease Threshold Configuration', () => {
 
     test('returns undefined for invalid disease', () => {
       const threshold = getDiseaseThreshold('invalidDisease' as DiseaseName);
-      
+
       expect(threshold).toBeUndefined();
     });
   });
@@ -210,7 +210,7 @@ describe('Disease Threshold Configuration', () => {
   describe('getAllCropTypes', () => {
     test('returns all crop types', () => {
       const crops = getAllCropTypes();
-      
+
       expect(crops).toContain(CropType.TOMATO);
       expect(crops).toContain(CropType.POTATO);
       expect(crops).toContain(CropType.WHEAT);
@@ -225,7 +225,7 @@ describe('Disease Threshold Configuration', () => {
   describe('getAllDiseaseNames', () => {
     test('returns all disease names', () => {
       const diseases = getAllDiseaseNames();
-      
+
       expect(diseases).toContain(DiseaseName.LATE_BLIGHT);
       expect(diseases).toContain(DiseaseName.POWDERY_MILDEW);
       expect(diseases).toContain(DiseaseName.RUST);
@@ -267,19 +267,19 @@ describe('Disease Threshold Configuration', () => {
   describe('Temperature range validation', () => {
     test('all diseases have valid temperature ranges', () => {
       const diseases = getAllDiseaseNames();
-      
+
       diseases.forEach(diseaseName => {
         const threshold = DISEASE_THRESHOLDS[diseaseName];
-        
+
         // Temperature ranges should be within realistic bounds
         expect(threshold.tempMin).toBeGreaterThanOrEqual(-10);
         expect(threshold.tempMin).toBeLessThanOrEqual(40);
         expect(threshold.tempMax).toBeGreaterThanOrEqual(-10);
         expect(threshold.tempMax).toBeLessThanOrEqual(50);
-        
+
         // Min should be less than max
         expect(threshold.tempMin).toBeLessThan(threshold.tempMax);
-        
+
         // Optimal should be within range
         expect(threshold.optimalTemp).toBeGreaterThanOrEqual(threshold.tempMin);
         expect(threshold.optimalTemp).toBeLessThanOrEqual(threshold.tempMax);
@@ -290,13 +290,13 @@ describe('Disease Threshold Configuration', () => {
   describe('Wetness hours validation', () => {
     test('all diseases have valid wetness hour requirements', () => {
       const diseases = getAllDiseaseNames();
-      
+
       diseases.forEach(diseaseName => {
         const threshold = DISEASE_THRESHOLDS[diseaseName];
-        
+
         // Wetness hours should be non-negative
         expect(threshold.minWetnessHours).toBeGreaterThanOrEqual(0);
-        
+
         // Wetness hours should be realistic (0-72 hours)
         expect(threshold.minWetnessHours).toBeLessThanOrEqual(72);
       });
@@ -306,7 +306,7 @@ describe('Disease Threshold Configuration', () => {
   describe('Crop coverage', () => {
     test('all supported crops have at least one disease', () => {
       const crops = getAllCropTypes();
-      
+
       crops.forEach(crop => {
         const diseases = getDiseasesForCrop(crop);
         expect(diseases.length).toBeGreaterThan(0);

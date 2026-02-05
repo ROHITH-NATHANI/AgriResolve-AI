@@ -35,7 +35,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
         client.off('connect_error', onError);
         resolve();
       };
-                  reconnection: false
+      reconnection: false
 
       const onError = (error: Error) => {
         clearTimeout(timeout);
@@ -67,11 +67,11 @@ describe('Property: Session Uniqueness and State Consistency', () => {
     io = new SocketIOServer(server, {
       cors: { origin: "*" }
     });
-    
+
     await websocketManager.initialize(io);
-    
+
     await new Promise<void>((resolve) => {
-      server.listen(port, resolve);
+      server!.listen(port, () => resolve());
     });
   });
 
@@ -82,7 +82,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
         socket.disconnect();
       }
     });
-    
+
     sessionManager.stopCleanupTimer();
 
     if (io) {
@@ -92,7 +92,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
 
     if (server) {
       await new Promise<void>((resolve) => {
-        server.close(resolve);
+        server!.close(() => resolve());
       });
       server = null;
     }
@@ -145,7 +145,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
             const sessionPromises = sessionConfigs.map(async (config, index) => {
               const sessionId = `test-session-${Date.now()}-${index}`;
               const creatorId = `creator-${index}`;
-              
+
               // Create session
               await sessionManager.createSession(sessionId, config.sessionTitle, creatorId);
               createdSessions.push(sessionId);
@@ -157,7 +157,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
                   auth: { token: `test-token-${sessionId}-${i}` },
                   reconnection: false
                 });
-                
+
                 participants.push(client);
                 clientSockets.push(client);
 
@@ -238,7 +238,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
           }
         }
       ),
-      { 
+      {
         numRuns: 10, // Reduced for faster testing, increase for more thorough testing
         timeout: 25000,
         verbose: true
@@ -320,7 +320,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
               const client = Client(`http://localhost:${port}`, {
                 auth: { token: `consistency-token-${i}` }
               });
-              
+
               participants.push(client);
               clientSockets.push(client);
 
@@ -353,7 +353,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
             for (let i = 0; i < testConfig.updateCount; i++) {
               const participantIndex = i % testConfig.participantCount;
               const updateType = testConfig.updateTypes[i % testConfig.updateTypes.length];
-              
+
               const promise = new Promise<void>((resolve) => {
                 setTimeout(() => {
                   participants[participantIndex].emit('workspace-update', {
@@ -366,7 +366,7 @@ describe('Property: Session Uniqueness and State Consistency', () => {
                   resolve();
                 }, Math.random() * 50); // Random delay up to 50ms
               });
-              
+
               updatePromises.push(promise);
             }
 
@@ -378,13 +378,13 @@ describe('Property: Session Uniqueness and State Consistency', () => {
             // Verify consistency: all participants should have received the same updates
             // (excluding their own updates which they don't receive back)
             const allReceivedUpdates = Array.from(receivedUpdates.values());
-            
+
             if (allReceivedUpdates.length > 1) {
               // Check that update counts are consistent (allowing for the sender not receiving their own update)
               const updateCounts = allReceivedUpdates.map(updates => updates.length);
               const minCount = Math.min(...updateCounts);
               const maxCount = Math.max(...updateCounts);
-              
+
               // Allow some variance due to timing and the fact that senders don't receive their own updates
               expect(maxCount - minCount).toBeLessThanOrEqual(testConfig.participantCount);
             }

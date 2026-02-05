@@ -257,7 +257,7 @@ describe('Property: Timezone Handling', () => {
           invalidTimezoneArbitrary,
           (timestamp, invalidTimezone) => {
             // Validate timestamp with invalid timezone
-            const isValid = validateTimestampWithTimezone(timestamp, invalidTimezone);
+            const isValid = validateTimestampWithTimezone(timestamp, invalidTimezone as any);
 
             // Verify validation fails with invalid timezone
             expect(isValid).toBe(false);
@@ -401,7 +401,7 @@ describe('Property: Timezone Handling', () => {
             // This verifies timezone-aware calculation is happening
             const hours = [utcInfo.hour, nyInfo.hour, tokyoInfo.hour];
             const uniqueHours = new Set(hours);
-            
+
             // At least some of these should be different due to timezone offsets
             // (unless we happen to hit a time where they align)
             expect(uniqueHours.size).toBeGreaterThanOrEqual(1);
@@ -506,7 +506,7 @@ describe('Property: Timezone Handling', () => {
           (timestamp, invalidTimezone) => {
             // Attempt to convert with invalid timezone
             expect(() => {
-              convertToTimezone(timestamp, invalidTimezone);
+              convertToTimezone(timestamp, invalidTimezone as any);
             }).toThrow();
           }
         ),
@@ -525,7 +525,7 @@ describe('Property: Timezone Handling', () => {
 
             // Verify offset is a number
             expect(typeof tzAware.offset).toBe('number');
-            
+
             // Verify offset is finite (not NaN or Infinity)
             expect(Number.isFinite(tzAware.offset)).toBe(true);
 

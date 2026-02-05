@@ -20,16 +20,16 @@ const router = Router();
  * Requirement 5.4: Backend shall inject API credentials server-side before calling Gemini API
  */
 const initializeGeminiClient = (): GoogleGenAI | null => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  
+  const apiKey = process.env.GEMINI_SERVICE_TOKEN;
+
   if (!apiKey) {
-    logger.error('GEMINI_API_KEY not found in environment variables');
+    logger.error('GEMINI_SERVICE_TOKEN not found in environment variables');
     return null;
   }
 
   // Sanitize API key (remove whitespace)
   const sanitizedKey = apiKey.replace(/\s/g, '').trim();
-  
+
   return new GoogleGenAI({ apiKey: sanitizedKey });
 };
 
@@ -121,16 +121,16 @@ const sanitizeResponse = (response: any): any => {
   // Remove potential API keys (patterns that look like API keys)
   // Gemini API keys typically start with "AI" followed by alphanumeric characters
   responseStr = responseStr.replace(/AI[a-zA-Z0-9_-]{35,}/g, '[REDACTED_API_KEY]');
-  
+
   // Remove any environment variable references
   responseStr = responseStr.replace(/process\.env\.[A-Z_]+/g, '[REDACTED_ENV_VAR]');
-  
+
   // Remove any Bearer tokens
   responseStr = responseStr.replace(/Bearer\s+[a-zA-Z0-9_-]+/gi, 'Bearer [REDACTED_TOKEN]');
-  
+
   // Remove any potential secrets or keys in JSON
   const sanitized = JSON.parse(responseStr);
-  
+
   // Recursively remove sensitive fields
   const removeSensitiveFields = (obj: any): any => {
     if (typeof obj !== 'object' || obj === null) {
@@ -144,14 +144,14 @@ const sanitizeResponse = (response: any): any => {
     const cleaned: any = {};
     for (const [key, value] of Object.entries(obj)) {
       const lowerKey = key.toLowerCase();
-      
+
       // Skip fields that might contain sensitive data
-      if (lowerKey.includes('apikey') || 
-          lowerKey.includes('api_key') ||
-          lowerKey.includes('secret') ||
-          lowerKey.includes('token') ||
-          lowerKey.includes('password') ||
-          lowerKey.includes('credential')) {
+      if (lowerKey.includes('apikey') ||
+        lowerKey.includes('api_key') ||
+        lowerKey.includes('secret') ||
+        lowerKey.includes('token') ||
+        lowerKey.includes('password') ||
+        lowerKey.includes('credential')) {
         cleaned[key] = '[REDACTED]';
       } else {
         cleaned[key] = removeSensitiveFields(value);
@@ -316,7 +316,7 @@ router.post('/analysis', async (req: Request, res: Response) => {
     // Validate taskType
     if (!MODEL_FALLBACKS[taskType as keyof typeof MODEL_FALLBACKS]) {
       logger.warn('Invalid task type', { taskType, sessionId: req.session?.id });
-      
+
       return res.status(400).json({
         error: 'Invalid Request',
         code: 'VALIDATION_ERROR',
@@ -345,11 +345,11 @@ router.post('/analysis', async (req: Request, res: Response) => {
 
     // Requirement 5.4: Initialize Gemini client with server-side API key
     const ai = initializeGeminiClient();
-    
+
     if (!ai) {
       logger.error('Failed to initialize Gemini client: API key not configured');
       geminiAvailable = false;
-      
+
       // Requirement 16.1: Try to use cached results
       const degradation = handleGeminiUnavailable(image);
       useCachedGemini = degradation.useCached;
@@ -395,19 +395,19 @@ router.post('/analysis', async (req: Request, res: Response) => {
           cacheAnalysisResult(image, result);
         }
       } catch (error: any) {
-        logger.error('Gemini API call failed', { 
+        logger.error('Gemini API call failed', {
           error: error.message,
-          sessionId: req.session?.id 
+          sessionId: req.session?.id
         });
-        
+
         geminiAvailable = false;
-        
+
         // Requirement 16.1: Try to use cached results
         const degradation = handleGeminiUnavailable(image);
         useCachedGemini = degradation.useCached;
         cachedGeminiResult = degradation.cachedResult;
         serviceErrors.push(degradation.error);
-        
+
         if (useCachedGemini) {
           result = cachedGeminiResult;
         }
@@ -524,11 +524,11 @@ router.post('/analysis', async (req: Request, res: Response) => {
     // Requirement 5.2: Never expose API keys in response
     // Double-check that no API key patterns exist in the response
     const responseStr = JSON.stringify(result);
-    if (responseStr.match(/AI[a-zA-Z0-9_-]{35,}/) || 
-        responseStr.toLowerCase().includes('apikey') ||
-        responseStr.toLowerCase().includes('api_key')) {
+    if (responseStr.match(/AI[a-zA-Z0-9_-]{35,}/) ||
+      responseStr.toLowerCase().includes('apikey') ||
+      responseStr.toLowerCase().includes('api_key')) {
       logger.error('Potential API key leak detected in response - blocking');
-      
+
       return res.status(500).json({
         error: 'Internal Server Error',
         code: 'SANITIZATION_ERROR',
@@ -597,7 +597,7 @@ router.post('/analysis', async (req: Request, res: Response) => {
 router.get('/analysis/health', async (req: Request, res: Response) => {
   try {
     const ai = initializeGeminiClient();
-    
+
     if (!ai) {
       return res.status(503).json({
         status: 'unhealthy',

@@ -50,10 +50,10 @@ interface ChemicalPattern {
 const CHEMICAL_PATTERNS = {
   // Requirement 13.2: Volume unit variations
   volumeUnits: ['ml', 'milliliter', 'millilitre', 'mL', 'millilitres', 'milliliters', 'millilitre', 'milliliter'],
-  
+
   // Requirement 13.3: Mass unit variations
   massUnits: ['g', 'gram', 'gramme', 'grams', 'grammes', 'gm', 'grm'],
-  
+
   // Requirement 13.1: Restricted chemicals with synonyms and variations
   restrictedChemicals: [
     {
@@ -157,7 +157,7 @@ export class ChemicalSafetyChecker {
     }
 
     // Generate warnings
-    const warnings = detected.map(c => c.recommendation);
+    const warnings = detected.map((c: DetectedChemical) => c.recommendation);
 
     return {
       hasRestrictedChemicals: detected.length > 0,
@@ -272,7 +272,7 @@ export class ChemicalSafetyChecker {
    */
   hasVolumeUnits(text: string): boolean {
     const normalizedText = text.toLowerCase();
-    return CHEMICAL_PATTERNS.volumeUnits.some(unit => 
+    return CHEMICAL_PATTERNS.volumeUnits.some(unit =>
       normalizedText.includes(unit.toLowerCase())
     );
   }
@@ -287,7 +287,7 @@ export class ChemicalSafetyChecker {
    */
   hasMassUnits(text: string): boolean {
     const normalizedText = text.toLowerCase();
-    return CHEMICAL_PATTERNS.massUnits.some(unit => 
+    return CHEMICAL_PATTERNS.massUnits.some(unit =>
       normalizedText.includes(unit.toLowerCase())
     );
   }

@@ -7,7 +7,7 @@
  */
 
 import * as fc from 'fast-check';
-import { ChemicalSafetyChecker } from '../chemicalSafetyChecker';
+import { ChemicalSafetyChecker, DetectedChemical } from '../chemicalSafetyChecker.js';
 
 describe('ChemicalSafetyChecker - Property Tests', () => {
   const checker = new ChemicalSafetyChecker();
@@ -37,7 +37,7 @@ describe('ChemicalSafetyChecker - Property Tests', () => {
             expect(result.detectedChemicals.length).toBeGreaterThan(0);
 
             // Should identify it as paraquat (primary name)
-            const detected = result.detectedChemicals.find(c => 
+            const detected = result.detectedChemicals.find((c: DetectedChemical) =>
               c.name === 'paraquat' || c.variations.includes('paraquat')
             );
             expect(detected).toBeDefined();
@@ -62,7 +62,7 @@ describe('ChemicalSafetyChecker - Property Tests', () => {
             expect(result.hasRestrictedChemicals).toBe(true);
 
             // Should identify it as chlorpyrifos
-            const detected = result.detectedChemicals.find(c => 
+            const detected = result.detectedChemicals.find((c: DetectedChemical) =>
               c.name === 'chlorpyrifos' || c.variations.includes('chlorpyrifos')
             );
             expect(detected).toBeDefined();
@@ -86,7 +86,7 @@ describe('ChemicalSafetyChecker - Property Tests', () => {
             expect(result.hasRestrictedChemicals).toBe(true);
 
             // Should identify it as glyphosate
-            const detected = result.detectedChemicals.find(c => 
+            const detected = result.detectedChemicals.find((c: DetectedChemical) =>
               c.name === 'glyphosate' || c.variations.includes('glyphosate')
             );
             expect(detected).toBeDefined();

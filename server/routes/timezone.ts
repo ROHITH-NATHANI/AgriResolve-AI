@@ -8,7 +8,7 @@
 import { Router, Request, Response } from 'express';
 import { getUserTimezone, setUserTimezone } from '../utils/userTimezoneStorage.js';
 import { validateTimezone } from '../utils/timezoneUtils.js';
-import logger from '../utils/logger.js';
+import { logger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -20,7 +20,7 @@ const router = Router();
 router.get('/', (req: Request, res: Response) => {
   try {
     const userTimezone = getUserTimezone(req);
-    
+
     logger.debug('User timezone retrieved', {
       timezone: userTimezone.timezone,
       method: userTimezone.detectionMethod,
